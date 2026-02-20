@@ -1,0 +1,14 @@
+EVALUATE
+    CALCULATETABLE(
+        VALUES(dEmitenteDQ[sk_cedente]),
+        FILTER(
+            dEmitenteDQ, 
+            dEmitenteDQ[SK_CEDENTE] IN 
+            SELECTCOLUMNS(
+                FILTER(
+                    fcarteiraImport,                     
+                    fcarteiraImport[CNPJCEDENTE] = SELECTEDVALUE(dEmitente[emitentecnpjcpf])
+                ), "codigocedente", fcarteiraImport[codigocedente]
+            )
+        )
+    )

@@ -1,0 +1,83 @@
+table '_Faixas Unificadas'
+	isHidden
+	lineageTag: 78b62bc0-03a8-4273-b783-3a06ad3eef1e
+
+	column TipoFaixa
+		isHidden
+		formatString: 0
+		lineageTag: ab37fac9-d05e-433c-95fa-10b28edcd687
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [TipoFaixa]
+
+		annotation SummarizationSetBy = Automatic
+
+	column FaixaExibicao
+		isHidden
+		lineageTag: 95f3a7f8-694d-44d7-8b8b-66a8af2aa945
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [FaixaExibicao]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Faixa
+		isHidden
+		lineageTag: 65629d47-ba36-4f1a-b17f-9af09192beb2
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: _Faixas de Qtde Notas[Faixa]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Min
+		isHidden
+		formatString: 0
+		lineageTag: 897d113e-46f1-403c-8aa6-a0befe71029f
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: _Faixas de Qtde Notas[Min]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Max
+		isHidden
+		formatString: 0
+		lineageTag: 50b11786-5ffb-430d-8bfa-efe9303c047d
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: _Faixas de Qtde Notas[Max]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordem
+		isHidden
+		formatString: 0
+		lineageTag: b03afca3-b4e0-4654-9928-4fd7b84ffaaa
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: _Faixas de Qtde Notas[Ordem]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition '_Faixas Unificadas' = calculated
+		mode: import
+		source = ```
+				
+				UNION(
+				    ADDCOLUMNS(
+				        '_Faixas de Qtde Notas',
+				        "TipoFaixa", 0,
+				        "FaixaExibicao", [Faixa]
+				    ),
+				    ADDCOLUMNS(
+				        '_Faixas de Valores',
+				        "TipoFaixa", 1,
+				        "FaixaExibicao", [Faixa]
+				    )
+				)
+				
+				```
+
+	annotation PBI_Id = 81ae7533b92b4dce850eb595fe9171d4
+

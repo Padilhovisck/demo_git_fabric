@@ -1,0 +1,172 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/fabric/item/report/definition/report/3.1.0/schema.json",
+  "themeCollection": {
+    "baseTheme": {
+      "name": "CY23SU08",
+      "reportVersionAtImport": {
+        "visual": "1.8.84",
+        "report": "2.0.84",
+        "page": "1.3.84"
+      },
+      "type": "SharedResources"
+    }
+  },
+  "objects": {
+    "section": [
+      {
+        "properties": {
+          "verticalAlignment": {
+            "expr": {
+              "Literal": {
+                "Value": "'Top'"
+              }
+            }
+          }
+        }
+      }
+    ],
+    "outspacePane": [
+      {
+        "properties": {
+          "expanded": {
+            "expr": {
+              "Literal": {
+                "Value": "false"
+              }
+            }
+          },
+          "visible": {
+            "expr": {
+              "Literal": {
+                "Value": "false"
+              }
+            }
+          }
+        }
+      }
+    ]
+  },
+  "publicCustomVisuals": [
+    "payPalKPIDonutChart55A431AB15A540ED924ACD72ED8D259F",
+    "PBI_CV_25997FEB_F466_44FA_B562_AC4063283C4C",
+    "BarChartF5983CEA542C47889C9DE852B430DE5F",
+    "TornadoChart1452517688218",
+    "enlightenWaffleChartC94C0BDE416B413A8071A92B5E75A718",
+    "WaffleChart1453776852267",
+    "BrickChart1454871868044"
+  ],
+  "resourcePackages": [
+    {
+      "name": "SharedResources",
+      "type": "SharedResources",
+      "items": [
+        {
+          "name": "CY23SU08",
+          "path": "BaseThemes/CY23SU08.json",
+          "type": "BaseTheme"
+        }
+      ]
+    },
+    {
+      "name": "RegisteredResources",
+      "type": "RegisteredResources",
+      "items": [
+        {
+          "name": "fast-backward010044341837079473.png",
+          "path": "fast-backward010044341837079473.png",
+          "type": "Image"
+        },
+        {
+          "name": "apenas_logo6772709054151677.png",
+          "path": "apenas_logo6772709054151677.png",
+          "type": "Image"
+        },
+        {
+          "name": "save-money0980204049572515.png",
+          "path": "save-money0980204049572515.png",
+          "type": "Image"
+        },
+        {
+          "name": "Detalhamento-EventosBQ13114844441856432.png",
+          "path": "Detalhamento-EventosBQ13114844441856432.png",
+          "type": "Image"
+        },
+        {
+          "name": "Carteira-EventosBQ204266664080207.png",
+          "path": "Carteira-EventosBQ204266664080207.png",
+          "type": "Image"
+        },
+        {
+          "name": "focus8806131763813239.png",
+          "path": "focus8806131763813239.png",
+          "type": "Image"
+        },
+        {
+          "name": "sigma20901669826399782.png",
+          "path": "sigma20901669826399782.png",
+          "type": "Image"
+        },
+        {
+          "name": "money25211523222706733.png",
+          "path": "money25211523222706733.png",
+          "type": "Image"
+        },
+        {
+          "name": "menos07651947972601358.png",
+          "path": "menos07651947972601358.png",
+          "type": "Image"
+        },
+        {
+          "name": "logoBI45100151342843653.png",
+          "path": "logoBI45100151342843653.png",
+          "type": "Image"
+        },
+        {
+          "name": "NFeletronicaBQ06902388412820126.png",
+          "path": "NFeletronicaBQ06902388412820126.png",
+          "type": "Image"
+        },
+        {
+          "name": "FaturamentoBQ6479259582836822.png",
+          "path": "FaturamentoBQ6479259582836822.png",
+          "type": "Image"
+        },
+        {
+          "name": "CarteiraBQ03371523686757216.png",
+          "path": "CarteiraBQ03371523686757216.png",
+          "type": "Image"
+        },
+        {
+          "name": "CarteiraAnaliticoBQ9254693195853647.png",
+          "path": "CarteiraAnaliticoBQ9254693195853647.png",
+          "type": "Image"
+        },
+        {
+          "name": "Carteira-Eventos-Modelo632657117577206.png",
+          "path": "Carteira-Eventos-Modelo632657117577206.png",
+          "type": "Image"
+        },
+        {
+          "name": "Consultas-Eventos12665829217963043.png",
+          "path": "Consultas-Eventos12665829217963043.png",
+          "type": "Image"
+        }
+      ]
+    }
+  ],
+  "settings": {
+    "useStylableVisualContainerHeader": true,
+    "exportDataMode": "AllowSummarized",
+    "defaultDrillFilterOtherVisuals": true,
+    "allowChangeFilterTypes": true,
+    "useEnhancedTooltips": true,
+    "useDefaultAggregateDisplayName": true
+  },
+  "slowDataSourceSettings": {
+    "isCrossHighlightingDisabled": false,
+    "isSlicerSelectionsButtonEnabled": false,
+    "isFilterSelectionsButtonEnabled": false,
+    "isFieldWellButtonEnabled": false,
+    "isApplyAllButtonEnabled": false
+  }
+}

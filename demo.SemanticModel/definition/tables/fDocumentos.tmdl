@@ -1,0 +1,197 @@
+table fDocumentos
+	lineageTag: 35b5a2f5-2860-4bda-ba8d-f1d4f5d94acf
+
+	refreshPolicy
+		policyType: basic
+		rollingWindowGranularity: year
+		rollingWindowPeriods: 2
+		incrementalGranularity: day
+		incrementalPeriods: 1
+		pollingExpression = let MaxDataCarga = List.Max(fDocumentos[DataCarga]), accountForNull = if MaxDataCarga = null then #datetime(1901, 01, 01, 00, 00, 00) else MaxDataCarga in accountForNull
+		sourceExpression =
+			let
+			    // Conexão com o BigQuery
+			    Fonte = GoogleBigQuery.Database(),
+			
+			    // Seleciona o projeto
+			    Projeto = Fonte{[Name = gprojeto]}[Data],
+			
+			    // Seleciona o schema/dataset
+			    Schema = Projeto{[Name = gdatabase, Kind = "Schema"]}[Data],
+			
+			    // Obtém a tabela fato de documentos
+			    FactDocumentos = Schema{[Name = "fact_documentos", Kind = "Table"]}[Data],
+			
+			    // Filtra por janela incremental de carga
+			    FiltraDataCarga =
+			        Table.SelectRows(
+			            FactDocumentos,
+			            each [DataCarga] >= RangeStart and [DataCarga] < RangeEnd
+			        ),
+			
+			    // Filtra apenas registros do cliente informado
+			    FiltraCliente =
+			        Table.SelectRows(
+			            FiltraDataCarga,
+			            each [ClienteId] = IDCliente
+			        )
+			in
+			    FiltraCliente
+
+	column ChaveNotaFiscal
+		dataType: string
+		lineageTag: d1049229-395e-49e8-b3e7-ef423d93cf2a
+		summarizeBy: none
+		sourceColumn: ChaveNotaFiscal
+
+		annotation SummarizationSetBy = Automatic
+
+	column NumeroDuplicata
+		dataType: string
+		lineageTag: 338eb245-03f7-4c41-939f-6fba53451824
+		summarizeBy: none
+		sourceColumn: NumeroDuplicata
+
+		annotation SummarizationSetBy = Automatic
+
+	column CodigoAssinaturaDocumentoDuplicata
+		dataType: string
+		lineageTag: 13434c07-769a-47e5-bca8-a4c8ed73f1aa
+		summarizeBy: none
+		sourceColumn: CodigoAssinaturaDocumentoDuplicata
+
+		annotation SummarizationSetBy = Automatic
+
+	column ValorDuplicata
+		dataType: double
+		lineageTag: f84377b8-8a2b-4a8d-8d7e-34bcbba2fd85
+		summarizeBy: sum
+		sourceColumn: ValorDuplicata
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column NumeroDuplicataAlterado
+		dataType: string
+		lineageTag: acf6639b-e0a6-41c0-b905-0c22a70fb6f6
+		summarizeBy: none
+		sourceColumn: NumeroDuplicataAlterado
+
+		annotation SummarizationSetBy = Automatic
+
+	column ValorDuplicataAlterado
+		dataType: double
+		lineageTag: 6dd09f36-2454-4418-87fe-de8a5ca76b69
+		summarizeBy: sum
+		sourceColumn: ValorDuplicataAlterado
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column DataConsulta
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 1b792f6a-421d-41b9-8982-d40a3358f3cb
+		summarizeBy: none
+		sourceColumn: DataConsulta
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column DataVencimento
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 1c83bfa0-df17-4ed1-af38-0c595e243697
+		summarizeBy: none
+		sourceColumn: DataVencimento
+
+		variation Variation
+			isDefault
+			relationship: f429b65f-d9eb-4432-864e-4a80d043e8d8
+			defaultHierarchy: LocalDateTable_3ccaf750-566d-418b-8488-b6003b336ce2.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column DataVencimentoAlterado
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: f73cfc75-03a5-4fc6-938d-3b3e9e0c807c
+		summarizeBy: none
+		sourceColumn: DataVencimentoAlterado
+
+		variation Variation
+			isDefault
+			relationship: 122238a1-408c-4bf0-aa0c-c83ee7249f70
+			defaultHierarchy: LocalDateTable_9b142620-2aa4-401a-bc0b-ac166cab60a2.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column ClienteId
+		dataType: int64
+		formatString: 0
+		lineageTag: b5a2095b-7767-4eb5-90fb-90df6d45fb94
+		summarizeBy: count
+		sourceColumn: ClienteId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataCarga
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 452f278d-b2d0-4289-8892-87d1577d0512
+		summarizeBy: none
+		sourceColumn: DataCarga
+
+		variation Variation
+			isDefault
+			relationship: 941b9dad-c9ff-492a-9f1b-d871bf1c29c2
+			defaultHierarchy: LocalDateTable_05c54644-c017-499e-9057-9f2438cf87ee.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fDocumentos = m
+		mode: import
+		queryGroup: '3. Fato'
+		source =
+				let
+				    // Conexão com o BigQuery
+				    Fonte = GoogleBigQuery.Database(),
+				
+				    // Seleciona o projeto
+				    Projeto = Fonte{[Name = gprojeto]}[Data],
+				
+				    // Seleciona o schema/dataset
+				    Schema = Projeto{[Name = gdatabase, Kind = "Schema"]}[Data],
+				
+				    // Obtém a tabela fato de documentos
+				    FactDocumentos = Schema{[Name = "fact_documentos", Kind = "Table"]}[Data],
+				
+				    // Filtra por janela incremental de carga
+				    FiltraDataCarga =
+				        Table.SelectRows(
+				            FactDocumentos,
+				            each [DataCarga] >= RangeStart and [DataCarga] < RangeEnd
+				        ),
+				
+				    // Filtra apenas registros do cliente informado
+				    FiltraCliente =
+				        Table.SelectRows(
+				            FiltraDataCarga,
+				            each [ClienteId] = IDCliente
+				        )
+				in
+				    FiltraCliente
+
+	annotation PBI_IsMQueryFoldable = True
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,967 @@
+table dCalendarioEmissao
+	lineageTag: 1891478d-bc29-4476-80ac-c5d4df5a4501
+
+	column Indice
+		dataType: int64
+		formatString: 0
+		lineageTag: d2900b62-d2aa-4081-97d5-9e151dba2874
+		summarizeBy: sum
+		sourceColumn: Indice
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Data
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: b4868be5-207b-49c1-80ff-3adfe108d649
+		summarizeBy: none
+		sourceColumn: Data
+
+		variation Variation
+			isDefault
+			relationship: 7db43f4c-0a86-4825-af1d-981a2ae4df61
+			defaultHierarchy: LocalDateTable_7f8564f7-7702-42c8-bb88-61a9ba773346.'Hierarquia de datas'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column DataOffset
+		dataType: int64
+		formatString: 0
+		lineageTag: 1631f1f7-adab-4619-bb71-acbd38e92822
+		summarizeBy: sum
+		sourceColumn: DataOffset
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataAtual
+		dataType: string
+		lineageTag: 945243c3-1ef3-48d1-8771-fdd2e8af0302
+		summarizeBy: none
+		sourceColumn: DataAtual
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ano
+		dataType: int64
+		formatString: 0
+		lineageTag: fc820f48-1510-465e-9c2d-75319aff7a99
+		summarizeBy: sum
+		sourceColumn: Ano
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnoInicio
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d6813e72-67c7-4121-9830-48a2c2a24fcb
+		summarizeBy: none
+		sourceColumn: AnoInicio
+
+		variation Variation
+			isDefault
+			relationship: 12de688e-3bde-46fa-97d3-59f44e8f12e8
+			defaultHierarchy: LocalDateTable_5ae54446-bbae-4975-bec2-e35925f46bef.'Hierarquia de datas'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column AnoFim
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 7ebe9b96-91f9-4a18-981f-8d0ca087f26c
+		summarizeBy: none
+		sourceColumn: AnoFim
+
+		variation Variation
+			isDefault
+			relationship: a5f35d6d-9c91-4560-becd-7ffca74b4310
+			defaultHierarchy: LocalDateTable_855eccec-2a13-4288-a7bc-ba3df62df37e.'Hierarquia de datas'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column AnoIndice
+		dataType: int64
+		formatString: 0
+		lineageTag: c3e0aec9-fa11-4816-86f9-962386b378dc
+		summarizeBy: sum
+		sourceColumn: AnoIndice
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnoDecrescenteNo
+		dataType: int64
+		formatString: 0
+		lineageTag: c4edc212-d1d7-40c0-bb82-9cbf977a9b9f
+		summarizeBy: sum
+		sourceColumn: AnoDecrescenteNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnoDescrescente
+		dataType: int64
+		formatString: 0
+		lineageTag: e6c7e5b4-7e19-4d74-bef2-02eb1602da5c
+		summarizeBy: sum
+		sourceColumn: AnoDescrescente
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnoFiscal
+		dataType: int64
+		formatString: 0
+		lineageTag: df7325a6-8133-4608-9f74-a221285b27ef
+		summarizeBy: sum
+		sourceColumn: AnoFiscal
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnoOffset
+		dataType: int64
+		formatString: 0
+		lineageTag: b3c88ada-aa4e-4cb3-9c5f-89f16b7c8dde
+		summarizeBy: sum
+		sourceColumn: AnoOffset
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnoAtual
+		dataType: string
+		lineageTag: 03876b4c-ac74-4584-a66b-3ea5989ff331
+		summarizeBy: none
+		sourceColumn: AnoAtual
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiaDoMes
+		dataType: int64
+		formatString: 0
+		lineageTag: 7939af8a-3525-4bfa-b39d-1ac67ee15066
+		summarizeBy: sum
+		sourceColumn: DiaDoMes
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiaDoAno
+		dataType: int64
+		formatString: 0
+		lineageTag: c0cd8851-2483-4c0d-a39d-f8be48c18248
+		summarizeBy: sum
+		sourceColumn: DiaDoAno
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiaDaSemanaNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 753e60e2-471d-43ba-b1f8-8b3e26e0fff0
+		summarizeBy: sum
+		sourceColumn: DiaDaSemanaNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiaDaSemana
+		dataType: string
+		lineageTag: 2d61bcb9-56a7-4b08-99ef-eaae437cb5f4
+		summarizeBy: none
+		sourceColumn: DiaDaSemana
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiaDaSemanaAbrev
+		dataType: string
+		lineageTag: 642ac38d-bbc4-44f8-81b8-62e295fb2ec6
+		summarizeBy: none
+		sourceColumn: DiaDaSemanaAbrev
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiaDaSemanaIniciais
+		dataType: string
+		lineageTag: 53257208-0736-4cdf-b2ab-0cbad59bf6a6
+		summarizeBy: none
+		sourceColumn: DiaDaSemanaIniciais
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesNo
+		dataType: int64
+		formatString: 0
+		lineageTag: dc1c7cc5-6362-4fd3-8378-d6441ec5d237
+		summarizeBy: sum
+		sourceColumn: MesNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Mes
+		dataType: string
+		lineageTag: 6baa52b3-128b-45d7-84f8-73c098e660a9
+		summarizeBy: none
+		sourceColumn: Mes
+		sortByColumn: MesNo
+
+		changedProperty = IsHidden
+
+		changedProperty = SortByColumn
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesAbrev
+		dataType: string
+		lineageTag: 25dea2f7-2970-487f-8ada-24b221805256
+		summarizeBy: none
+		sourceColumn: MesAbrev
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesIniciais
+		dataType: string
+		lineageTag: 348af3e8-543a-47b5-bb5a-f1646a59dcf1
+		summarizeBy: none
+		sourceColumn: MesIniciais
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesAnoNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 71b7585e-b90f-4b0a-b599-b49e1261dd30
+		summarizeBy: sum
+		sourceColumn: MesAnoNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesAno
+		dataType: string
+		lineageTag: a2821488-5d32-4ac8-bf8b-1a24466364bf
+		summarizeBy: none
+		sourceColumn: MesAno
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesDiaNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 57bc8e82-b8d6-4bc3-9f69-86f175301888
+		summarizeBy: sum
+		sourceColumn: MesDiaNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesDia
+		dataType: string
+		lineageTag: d2b6fb18-a7eb-4f5a-a24f-76cef6e91a78
+		summarizeBy: none
+		sourceColumn: MesDia
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesInicio
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 191a3fbd-a2b6-4acc-9d91-51836dc50469
+		summarizeBy: none
+		sourceColumn: MesInicio
+
+		variation Variation
+			isDefault
+			relationship: f54b8f9a-e2df-42dc-afa3-79978c43beec
+			defaultHierarchy: LocalDateTable_9f555e1b-599f-42b6-a49f-d3068092b805.'Hierarquia de datas'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column MesFim
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: d6ee600e-8646-44a7-b812-a0d1783f6781
+		summarizeBy: none
+		sourceColumn: MesFim
+
+		variation Variation
+			isDefault
+			relationship: 46bcea2a-8c83-4fee-a97c-d7a30b375e60
+			defaultHierarchy: LocalDateTable_dd34d2e5-7637-4254-8652-66e2df19b5e6.'Hierarquia de datas'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column MesIndice
+		dataType: int64
+		formatString: 0
+		lineageTag: 83e08ea3-6e31-48bf-9358-96e009117cba
+		summarizeBy: sum
+		sourceColumn: MesIndice
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesOffset
+		dataType: int64
+		formatString: 0
+		lineageTag: 37cbfe38-cd48-4144-9725-cbf2dcbc3469
+		summarizeBy: sum
+		sourceColumn: MesOffset
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesAtual
+		dataType: string
+		lineageTag: 721d0784-82ac-43a5-8915-22c45093e94b
+		summarizeBy: none
+		sourceColumn: MesAtual
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesAbrevAtual
+		dataType: string
+		lineageTag: 0e823a2f-7c75-49cb-8599-a4352cb5e97a
+		summarizeBy: none
+		sourceColumn: MesAbrevAtual
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesAnoAtual
+		dataType: string
+		lineageTag: c5bf3e90-f7d8-463b-85f5-6ab124f8b1c1
+		summarizeBy: none
+		sourceColumn: MesAnoAtual
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column TrimestreNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 47a39067-3bb3-4142-9e78-fac5ceeb86df
+		summarizeBy: sum
+		sourceColumn: TrimestreNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column TrimestreInicio
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 3abb858e-f9fd-4b4e-a510-aecc24312610
+		summarizeBy: none
+		sourceColumn: TrimestreInicio
+
+		variation Variation
+			isDefault
+			relationship: 1854fdf2-816e-4c92-b864-7be15751d7e4
+			defaultHierarchy: LocalDateTable_d0fe9098-78d0-4ed5-8e3d-036f1fd689bf.'Hierarquia de datas'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column TrimestreFim
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 116bcb0c-1cb7-4f42-95ae-f912193118a5
+		summarizeBy: none
+		sourceColumn: TrimestreFim
+
+		variation Variation
+			isDefault
+			relationship: 605dbe95-7ceb-4522-b66f-d18440c9fc5a
+			defaultHierarchy: LocalDateTable_22ee383b-1d90-4451-8ec2-cdad2698a04c.'Hierarquia de datas'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column TrimestreAnoNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 2567a8a2-0ba7-4b1f-9e9e-f00c4925ce62
+		summarizeBy: sum
+		sourceColumn: TrimestreAnoNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column TrimestreAno
+		dataType: string
+		lineageTag: e47a6621-87c0-47f2-a42f-9e915b45c8a5
+		summarizeBy: none
+		sourceColumn: TrimestreAno
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column TrimestreIndice
+		dataType: int64
+		formatString: 0
+		lineageTag: 37e03fbc-d89b-41d9-a9aa-18085a025c55
+		summarizeBy: sum
+		sourceColumn: TrimestreIndice
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column TrimestreOffset
+		dataType: int64
+		formatString: 0
+		lineageTag: 108c3cab-18ef-4423-ac7c-997f5a396c3d
+		summarizeBy: sum
+		sourceColumn: TrimestreOffset
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column TrimestreAtual
+		dataType: string
+		lineageTag: f6f0ba43-cc3a-4b20-b26f-3b48e02d53e9
+		summarizeBy: none
+		sourceColumn: TrimestreAtual
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemanaIsoNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 4f4a831e-c0b7-4232-8c48-6f67a0dcd298
+		summarizeBy: sum
+		sourceColumn: SemanaIsoNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnoIso
+		dataType: int64
+		formatString: 0
+		lineageTag: ec0daf9d-9326-4305-b400-438829cb87d9
+		summarizeBy: sum
+		sourceColumn: AnoIso
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemanaIsoAnoNo
+		dataType: int64
+		formatString: 0
+		lineageTag: d63895bd-98f9-49a7-aa95-3a771c1607d1
+		summarizeBy: sum
+		sourceColumn: SemanaIsoAnoNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemanaIsoAno
+		dataType: string
+		lineageTag: 41cbe282-3140-4f59-84a7-61e9644ef5b8
+		summarizeBy: none
+		sourceColumn: SemanaIsoAno
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemanaIsoInicio
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 6229d7d0-b094-4a0e-8ec9-82b5cdfe7104
+		summarizeBy: none
+		sourceColumn: SemanaIsoInicio
+
+		variation Variation
+			isDefault
+			relationship: c9d12780-93f3-4b8d-9d9c-9f67b81526c9
+			defaultHierarchy: LocalDateTable_b450c9b1-685b-43cd-8896-f5bc7634b6b1.'Hierarquia de datas'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column SemanaIsoFim
+		dataType: dateTime
+		formatString: Long Date
+		lineageTag: 4c3c0f6d-6cd6-46ed-9db5-2422dc6647de
+		summarizeBy: none
+		sourceColumn: SemanaIsoFim
+
+		variation Variation
+			isDefault
+			relationship: 3cdaaf29-c959-47bc-a5f6-72923b12b65f
+			defaultHierarchy: LocalDateTable_d38cc24b-963b-43ce-ace6-d79bc97de10c.'Hierarquia de datas'
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation UnderlyingDateTimeDataType = Date
+
+	column SemanaIsoIndice
+		dataType: int64
+		formatString: 0
+		lineageTag: 5f677546-743a-4946-8837-36cb8185ded4
+		summarizeBy: sum
+		sourceColumn: SemanaIsoIndice
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemanaOffset
+		dataType: int64
+		formatString: 0
+		lineageTag: 533cfe32-5613-4a8b-8fe4-3c29eb115276
+		summarizeBy: sum
+		sourceColumn: SemanaOffset
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemanaAtual
+		dataType: string
+		lineageTag: 832f9908-4799-426e-82cb-f63ad8c05cb5
+		summarizeBy: none
+		sourceColumn: SemanaAtual
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemanaDoMesNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 36be9d50-bcde-4de1-a25e-803ded878c75
+		summarizeBy: sum
+		sourceColumn: SemanaDoMesNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column AnoSemanal
+		dataType: int64
+		formatString: 0
+		lineageTag: 83fe4ced-c838-48e4-88be-01b684c3eca3
+		summarizeBy: sum
+		sourceColumn: AnoSemanal
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesSemanalNo
+		dataType: int64
+		formatString: 0
+		lineageTag: cc826534-2b11-46d8-8a8e-ca9368013cc7
+		summarizeBy: sum
+		sourceColumn: MesSemanalNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesSemanal
+		dataType: string
+		lineageTag: c04a2478-433b-45f9-baa7-3faf27c5ddd5
+		summarizeBy: none
+		sourceColumn: MesSemanal
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesSemanalAbrev
+		dataType: string
+		lineageTag: 7c6bda59-ffec-4778-97d3-f1ae7abc4818
+		summarizeBy: none
+		sourceColumn: MesSemanalAbrev
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesAnoSemanalNo
+		dataType: int64
+		formatString: 0
+		lineageTag: edd744f8-25a6-4ad6-96f2-a75b69296a30
+		summarizeBy: sum
+		sourceColumn: MesAnoSemanalNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column MesAnoSemanal
+		dataType: string
+		lineageTag: e682b42e-9557-42c1-9ab3-279add25e3cb
+		summarizeBy: none
+		sourceColumn: MesAnoSemanal
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuinzenaDoMesNo
+		dataType: int64
+		formatString: 0
+		lineageTag: cf53bde8-1e0a-492f-8e2e-4c20b9d55f39
+		summarizeBy: sum
+		sourceColumn: QuinzenaDoMesNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuinzenaMesNo
+		dataType: int64
+		formatString: 0
+		lineageTag: d2e5c1e0-61a9-40da-9a32-53e89b2314df
+		summarizeBy: sum
+		sourceColumn: QuinzenaMesNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuinzenaMes
+		dataType: string
+		lineageTag: fd8cef39-d8f5-4d40-a802-473a6f30e969
+		summarizeBy: none
+		sourceColumn: QuinzenaMes
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuinzenaMesAnoNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 60f76497-00aa-4084-9cb9-4f608658d038
+		summarizeBy: sum
+		sourceColumn: QuinzenaMesAnoNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuinzenaMesAno
+		dataType: string
+		lineageTag: fc468ff5-16aa-45a6-9cab-e8dca781d204
+		summarizeBy: none
+		sourceColumn: QuinzenaMesAno
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuinzenaIndice
+		dataType: int64
+		formatString: 0
+		lineageTag: 27e0f8f0-cbe7-4655-922d-0ff8ca37d731
+		summarizeBy: sum
+		sourceColumn: QuinzenaIndice
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuinzenaOffset
+		dataType: int64
+		formatString: 0
+		lineageTag: 7dd16b00-4dbb-4d15-bcd9-3a472db3a31d
+		summarizeBy: sum
+		sourceColumn: QuinzenaOffset
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column QuinzenaAtual
+		dataType: string
+		lineageTag: f675816e-7fbf-4352-bd8e-c2c70b0104e7
+		summarizeBy: none
+		sourceColumn: QuinzenaAtual
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemestreDoAnoNo
+		dataType: int64
+		formatString: 0
+		lineageTag: f31a405d-d62e-498f-8852-38d408fc6064
+		summarizeBy: sum
+		sourceColumn: SemestreDoAnoNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemestreAnoNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 8be5ba89-9eb5-468e-82d2-56ef92471514
+		summarizeBy: sum
+		sourceColumn: SemestreAnoNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemestreAno
+		dataType: string
+		lineageTag: b9ac2e16-bd62-47e4-8d9e-b8861249b09c
+		summarizeBy: none
+		sourceColumn: SemestreAno
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemestreIndice
+		dataType: int64
+		formatString: 0
+		lineageTag: bd40a7db-b4d3-41e2-a747-f4447f1c13c2
+		summarizeBy: sum
+		sourceColumn: SemestreIndice
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemestreOffset
+		dataType: int64
+		formatString: 0
+		lineageTag: 5678634d-f402-450c-9fcd-b4ea5a72953e
+		summarizeBy: sum
+		sourceColumn: SemestreOffset
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column SemestreAtual
+		dataType: string
+		lineageTag: 9b9648ef-b09b-4164-a402-6fa751fdaa24
+		summarizeBy: none
+		sourceColumn: SemestreAtual
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BimestreDoAnoNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 47fc93b4-8c26-47c4-a689-fedfc2afdf52
+		summarizeBy: sum
+		sourceColumn: BimestreDoAnoNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BimestreAnoNo
+		dataType: int64
+		formatString: 0
+		lineageTag: c9a5bc98-a6fd-4d1a-be53-9051f9d6bb27
+		summarizeBy: sum
+		sourceColumn: BimestreAnoNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BimestreAno
+		dataType: string
+		lineageTag: 801e1a16-ced8-47ce-9a8e-54607b4cbbbe
+		summarizeBy: none
+		sourceColumn: BimestreAno
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BimestreIndice
+		dataType: int64
+		formatString: 0
+		lineageTag: 9113eb99-7cb0-44ff-8004-b8d446c1c5cf
+		summarizeBy: sum
+		sourceColumn: BimestreIndice
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BimestreOffset
+		dataType: int64
+		formatString: 0
+		lineageTag: 8c56a585-3259-4993-8a48-d8665543246c
+		summarizeBy: sum
+		sourceColumn: BimestreOffset
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column BimestreAtual
+		dataType: string
+		lineageTag: a0b4a359-cab8-4188-96c0-74c9805ee626
+		summarizeBy: none
+		sourceColumn: BimestreAtual
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Feriados
+		dataType: string
+		lineageTag: 2c604b3c-e196-4dd1-b6a4-2dfaf9e34a2d
+		summarizeBy: none
+		sourceColumn: Feriados
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiaUtilNo
+		dataType: int64
+		formatString: 0
+		lineageTag: aca5f611-a7cb-4fb4-a973-268471b8e68f
+		summarizeBy: sum
+		sourceColumn: DiaUtilNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column Diautil
+		dataType: string
+		lineageTag: 66a31714-9d48-41ff-9222-c300a5a554f8
+		summarizeBy: none
+		sourceColumn: Diautil
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column EstacaoAnoNo
+		dataType: int64
+		formatString: 0
+		lineageTag: 9f49aaf8-cf17-4299-9335-8f19d28c2d7e
+		summarizeBy: sum
+		sourceColumn: EstacaoAnoNo
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	column EstacaoAno
+		dataType: string
+		lineageTag: fa7eab3f-f3c9-4a02-9ab5-8c8f84b83706
+		summarizeBy: none
+		sourceColumn: EstacaoAno
+
+		changedProperty = IsHidden
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dCalendarioEmissao = m
+		mode: import
+		queryGroup: '2. Dimensão'
+		source =
+				let
+				    Fonte = dCalendario
+				in
+				    Fonte
+
+	changedProperty = IsHidden
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

@@ -1,0 +1,45 @@
+table 'VISAO POR DT EMISSAO'
+	isHidden
+	lineageTag: c6a0033e-ccfd-4f7e-a514-026e79b509d7
+
+	calculationGroup
+		precedence: 2
+
+		calculationItem 'Mês Atual' = SELECTEDMEASURE()
+
+		calculationItem YTD =
+				
+				CALCULATE(
+				    SELECTEDMEASURE(),
+				    DATESYTD(dCalendarioEmissao[Data]),
+				    ALLEXCEPT(dCalendarioEmissao, dCalendarioEmissao[Ano])
+				)
+
+		calculationItem QTD =
+				
+				CALCULATE(
+				    SELECTEDMEASURE(),
+				    DATESQTD(dCalendarioEmissao[Data]),
+				    ALLEXCEPT(dCalendarioEmissao, dCalendarioEmissao[Ano], dCalendarioEmissao[TrimestreAno])
+				)
+
+	column Itens
+		dataType: string
+		isHidden
+		lineageTag: 6ef07252-a3c2-46de-981c-45d4565086ed
+		summarizeBy: none
+		sourceColumn: Name
+		sortByColumn: Ordinal
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordinal
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: 37aa9330-4144-44d9-9ee7-915b22863695
+		summarizeBy: sum
+		sourceColumn: Ordinal
+
+		annotation SummarizationSetBy = Automatic
+

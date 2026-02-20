@@ -1,0 +1,31 @@
+table 'Top 5 Emitentes'
+	isHidden
+	lineageTag: eb71f641-e6ca-45c6-a05c-7cec075da85b
+
+	/// [Parâmetro] Valor selecionado para filtrar Top N emitentes. Controle de segmentação dinâmica.
+	measure 'Valor Segmentador Top N' = SELECTEDVALUE('Top 5 Emitentes'[Segmentador Top N], 3)
+		formatString: 0
+		isHidden
+		displayFolder: Parâmetros
+		lineageTag: 337b44ff-16e9-456b-890f-ae6ef36baed5
+
+	column 'Segmentador Top N'
+		isHidden
+		formatString: 0
+		lineageTag: 46dbb294-87a5-4dcf-b2d3-4b636d0c5b93
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 0
+				}
+
+		annotation SummarizationSetBy = User
+
+	partition 'Top 5 Emitentes' = calculated
+		mode: import
+		source = GENERATESERIES(5, 10, 1)
+
+	annotation PBI_Id = 8b7a1ff928d04271856b0c2c1be087c3
+

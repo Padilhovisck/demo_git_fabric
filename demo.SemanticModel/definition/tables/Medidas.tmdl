@@ -1,0 +1,3750 @@
+table Medidas
+	lineageTag: 4586774b-3a0a-4fec-9fb7-538e959ac9bf
+
+	/// Identifica os principais emitentes de NFes por volume ou valor. Usado em rankings e análises de concentração.
+	measure 'Carteira Top Emitentes' = ```
+			
+			
+			VAR _N = 'Top 5 Emitentes'[Valor Segmentador Top N]
+			
+			VAR _Tops = 
+			WINDOW(
+			    1, ABS,
+			    _N, ABS,
+			    ALLSELECTED(topEmitentesdaNota[Emitente]),
+			    ORDERBY([Total de Consultas Realizadas], DESC)
+			)
+			
+			VAR _Outros = 
+			WINDOW(
+			    _N + 1, ABS,
+			    -1, ABS,
+			    ALLSELECTED(topEmitentesdaNota[Emitente]),
+			    ORDERBY([Total de Consultas Realizadas], DESC)
+			)
+			
+			VAR _TopsValor = 
+			CALCULATE(
+			    [Total de Consultas Realizadas],
+			    KEEPFILTERS(_Tops)
+			)
+			
+			VAR _OutrosValor = 
+			CALCULATE(
+			    [Total de Consultas Realizadas],
+			    _Outros
+			)
+			
+			VAR _Resultado = 
+			IF(
+			    SELECTEDVALUE(topEmitentesdaNota[Emitente]) = "Outros",
+			    _OutrosValor,
+			    _TopsValor
+			)
+			
+			RETURN _Resultado
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Notas Fiscais\Análise de Emitentes
+		lineageTag: c9471ea1-5d04-4d4a-b894-26a5c0b3e429
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Classifica os cedentes em categorias (Top N) baseado em critérios de volume ou valor.
+	measure 'Classificador Top Cedentes' = ```
+			
+			
+			VAR _Relation = 
+			FILTER(
+			    ALLSELECTED(topEmitentesdaNota[Emitente]),
+			    topEmitentesdaNota[Emitente] <> "Outros"
+			    && [Carteira Top Emitentes] > 0 -- Excluir emitentes com valor zero
+			)
+			
+			VAR _Rank = 
+			RANK(
+			    DENSE,
+			    _Relation,
+			    ORDERBY([Carteira Top Emitentes], DESC)
+			)
+			
+			VAR _Resultado = 
+			IF(
+			    SELECTEDVALUE(topEmitentesdaNota[Emitente]) = "Outros"
+			        && [Carteira Top Emitentes],
+			        999999,
+			    _Rank
+			)
+			
+			RETURN _Resultado
+			
+			
+			```
+		displayFolder: Notas Fiscais\Análise de Emitentes
+		lineageTag: 195122ce-71f6-40eb-995d-5413a56445cb
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Valor total de notas com classificação crítica de risco. Alertas prioritários.
+	measure 'Total Crítico' = ```
+			
+			COALESCE(
+			    CALCULATE(
+			        [Total de Consultas Realizadas],        
+			        FILTER(
+			            dNotas,
+			            dNotas[CriticidadeEvento] = "CRÍTICO"
+			        )
+			    ), 0
+			)
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Notas Fiscais\Criticidade
+		lineageTag: c065b518-a33b-4a70-b026-b63a3852d0cb
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Valor total de notas que requerem avaliação adicional. Nível intermediário de atenção.
+	measure 'Total a Avaliar' = ```
+			
+			COALESCE(
+			    CALCULATE(
+			        [Total de Consultas Realizadas],        
+			        FILTER(
+			            dNotas,
+			            dNotas[CriticidadeEvento] = "AVALIAR"
+			        )
+			    ), 0
+			)
+			
+			```
+		displayFolder: Notas Fiscais\Criticidade
+		lineageTag: be7aa095-e428-4df4-b3b6-103044018975
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Valor total de notas sem indicações de risco. Carteira saudável.
+	measure 'Total Sem Risco' = ```
+			
+			COALESCE(
+			    CALCULATE(
+			        [Total de Consultas Realizadas],        
+			        FILTER(
+			            dNotas,
+			            dNotas[CriticidadeEvento] = "SEM RISCO"
+			        )
+			    ), 0
+			)
+			
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Notas Fiscais\Criticidade
+		lineageTag: c19cfccf-bff9-4a8b-ba97-62ff15bc8d78
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Percentual de notas a avaliar sobre o total. KPI de gestão de risco.
+	measure '% a Avaliar' = ```
+			
+			DIVIDE(
+			    [Total a Avaliar], // Valor parcial
+			    [Total de Consultas Realizadas],        // Valor total de acordo com a opção selecionada
+			    0                   // Retorna 0 se o denominador for 0 ou BLANK
+			)
+			
+			```
+		formatString: #,0%;-#,0%;#,0%
+		displayFolder: Notas Fiscais\Criticidade
+		lineageTag: 201ffa83-fe13-4eda-993b-232f9e5371bc
+
+	/// Percentual de notas críticas sobre o total. KPI de alerta máximo.
+	measure '% Crítico' = ```
+			
+			DIVIDE(
+			    [Total Crítico], // Valor parcial
+			    [Total de Consultas Realizadas],        // Valor total de acordo com a opção selecionada
+			    0                   // Retorna 0 se o denominador for 0 ou BLANK
+			)
+			
+			```
+		displayFolder: Notas Fiscais\Criticidade
+		lineageTag: bf3f81ad-5f77-4fc8-9c9a-c22b6d32ea7a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Percentual de notas sem risco sobre o total. KPI de qualidade da carteira.
+	measure '% Sem Risco' =
+			
+			DIVIDE(
+			    [Total Sem Risco], // Valor parcial
+			    [Total de Consultas Realizadas],        // Valor total de acordo com a opção selecionada
+			    0                   // Retorna 0 se o denominador for 0 ou BLANK
+			)
+		displayFolder: Notas Fiscais\Criticidade
+		lineageTag: 7e99f3a0-2563-4da0-a43c-9ded6c4b3b0e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Número total de consultas de NFes realizadas no período. Indicador de atividade operacional.
+	measure 'Total de Consultas Realizadas' = SUM(fDocumentos[ValorDuplicata])
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 0b7b328e-e0aa-4abc-837c-ba4a8602660c
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Percentual de notas a vencer no período selecionado. Indica liquidez futura.
+	measure '% Total a Vencer no Período' =
+			
+			VAR ResultadoPercentual = DIVIDE([Total a Vencer no Período], [Total de Consultas Realizadas], 0)
+			RETURN
+			    "(a vencer) | " & FORMAT(ResultadoPercentual, "0.0%")
+		displayFolder: Notas Fiscais\Status
+		lineageTag: 69fdfff1-2a6c-4552-809f-b2625e5e49bc
+
+	/// Prazo médio em dias para recebimento das NFes. Indicador de ciclo financeiro.
+	measure 'Média Dias para Recebimento' = ```
+			
+			VAR TotalDocumentos = COUNTROWS(fDocumentos)
+			VAR SomaDias = 
+			    SUMX(
+			        fDocumentos,
+			        DATEDIFF(fDocumentos[DataVencimento], fDocumentos[DataConsulta], DAY)
+			    )
+			RETURN
+			DIVIDE(SomaDias, TotalDocumentos, 0)
+			```
+		displayFolder: Notas Fiscais\Análise Temporal
+		lineageTag: 578bca57-4df7-4633-8459-b66885f229c9
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Quantidade total de notas fiscais na base. Contagem geral.
+	measure 'Qtd Total de Notas' =
+			
+			VAR UltimaDataContexto = MAX(dCalendario[Data])
+			RETURN
+			CALCULATE(
+			    DISTINCTCOUNT(fDocumentos[ChaveNotaFiscal]),
+			    fDocumentos[DataConsulta] < UltimaDataContexto
+			)
+		formatString: 0
+		displayFolder: Notas Fiscais\Quantidades
+		lineageTag: a6325fd3-1c39-480b-b9e6-bb9df25f103e
+
+	/// Quantidade de notas que tiveram consulta realizada. Indicador de cobertura.
+	measure 'Qtd Notas Consultadas' =
+			
+			COALESCE(
+			    CALCULATE(
+			        [Qtd Notas Primeira Consulta],
+			        NOT(ISBLANK(dNotas[PrimeiraDataConsulta]))
+			    ), 0
+			)
+		formatString: 0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: e1a052da-2fa9-46cf-91aa-87e822ca7efe
+
+	/// Percentual de notas consultadas sobre o total. KPI de cobertura operacional.
+	measure '% Notas Consultadas' =
+			
+			VAR ResultadoPercentual = DIVIDE([Qtd Notas Consultadas], [Qtd Notas Primeira Consulta], 0)
+			RETURN
+			    "(consultadas) | " & FORMAT(ResultadoPercentual, "0.0%")
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 7ba91891-61b5-4a52-942d-2a866b77d9b8
+
+	/// Quantidade de notas que receberam a primeira consulta. Indicador de novas análises.
+	measure 'Qtd Notas Primeira Consulta' = ```
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			RETURN 
+			    CALCULATE(
+			        COUNT(dNotas[ChaveNotaFiscal]),
+			        dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && 
+			        dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada &&
+			        NOT(ISBLANK(dNotas[PrimeiraDataConsulta]))
+			    )
+			
+			```
+		formatString: 0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: ca867aca-ce3c-4ac7-a078-9aa110209fca
+
+	/// Tempo médio em dias entre consultas sucessivas de uma mesma nota. Frequência de acompanhamento.
+	measure 'Média Dias Entre Consultas' = ```
+			
+			VAR TabelaFiltrada = 
+			    FILTER(
+			        dNotas,
+			        NOT ISBLANK(dNotas[PrimeiraDataConsulta]) && 
+			        NOT ISBLANK(dNotas[UltimaDataConsulta]) &&
+			        dNotas[PrimeiraDataConsulta] <> dNotas[UltimaDataConsulta]
+			    )
+			RETURN
+			AVERAGEX(
+			    TabelaFiltrada,
+			    DATEDIFF(dNotas[PrimeiraDataConsulta], dNotas[UltimaDataConsulta], DAY)
+			)
+			```
+		displayFolder: Notas Fiscais\Análise Temporal
+		lineageTag: e7dc262f-905a-4eea-aa5b-8b2be9a988d1
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Quantidade de notas que foram consultadas mais de uma vez. Indica retrabalho ou monitoramento.
+	measure 'Qtd Notas com Múltiplas Consultas' = ```
+			
+			CALCULATE(
+			    COUNTROWS(dNotas),
+			    NOT ISBLANK(dNotas[PrimeiraDataConsulta]) && 
+			    NOT ISBLANK(dNotas[UltimaDataConsulta]) &&
+			    dNotas[PrimeiraDataConsulta] <> dNotas[UltimaDataConsulta]
+			)
+			```
+		formatString: 0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: c92eeb0d-b39b-45f9-a971-90b9febdfe14
+
+	/// Quantidade total de notas no período filtrado. Análise temporal.
+	measure 'Qtd Total de Notas no Período' =
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			RETURN
+			    CALCULATE(
+			        DISTINCTCOUNT(dNotas[ChaveNotaFiscal]),
+			        FILTER(
+			            dNotas,
+			            (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada) ||
+			            (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			        )
+			    )
+		formatString: 0
+		displayFolder: Notas Fiscais\Quantidades
+		lineageTag: 6c23370a-796c-460f-aec2-91cd8686b013
+
+	/// Quantidade de notas consultadas pela primeira vez no período selecionado.
+	measure 'Qtd Notas Primeira Consulta no Período' = ```
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			RETURN 
+			    CALCULATE(
+			        DISTINCTCOUNT(dNotas[ChaveNotaFiscal]),
+			        dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && 
+			        dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada &&
+			        NOT(ISBLANK(dNotas[PrimeiraDataConsulta]))
+			    )
+			
+			```
+		formatString: 0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 08dccaba-c6c7-4f24-9a7a-77643d60c133
+
+	/// Quantidade de notas cuja última consulta ocorreu no período selecionado.
+	measure 'Qtd Notas Última Consulta no Período' = ```
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			RETURN 
+			    CALCULATE(
+			        DISTINCTCOUNT(dNotas[ChaveNotaFiscal]),
+			        dNotas[UltimaDataConsulta] >= MinDataFiltrada && 
+			        dNotas[UltimaDataConsulta] <= MaxDataFiltrada &&
+			        NOT(ISBLANK(dNotas[UltimaDataConsulta]))
+			    )
+			
+			```
+		formatString: 0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 241e801b-e725-4838-b632-53e9b1a24b0e
+
+	/// Tempo médio entre a primeira e última consulta de notas. Ciclo de acompanhamento.
+	measure 'Média Dias Primeira à Última Consulta' = ```
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			RETURN
+			    AVERAGEX(
+			        FILTER(
+			            dNotas,
+			            NOT(ISBLANK(dNotas[PrimeiraDataConsulta])) && 
+			            NOT(ISBLANK(dNotas[UltimaDataConsulta])) &&
+			            dNotas[PrimeiraDataConsulta] <> dNotas[UltimaDataConsulta] && -- Apenas notas com mais de uma consulta
+			            dNotas[UltimaDataConsulta] >= MinDataFiltrada && -- Última consulta no período
+			            dNotas[UltimaDataConsulta] <= MaxDataFiltrada
+			        ),
+			        DATEDIFF(dNotas[PrimeiraDataConsulta], dNotas[UltimaDataConsulta], DAY)
+			    )
+			
+			```
+		formatString: 0.0
+		displayFolder: Notas Fiscais\Análise Temporal
+		lineageTag: 1f6ed3da-5d66-4a1c-a10e-42532cdf52cb
+
+	/// Quantos dias em média desde a primeira consulta até o fim do período. Indica antiguidade.
+	measure 'Média Idade Primeira Consulta (Dias)' = ```
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			RETURN
+			    AVERAGEX(
+			        FILTER(
+			            dNotas,
+			            NOT(ISBLANK(dNotas[PrimeiraDataConsulta])) &&
+			            dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada && -- Apenas notas cuja primeira consulta ocorreu até a data final do contexto
+			            (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada || dNotas[UltimaDataConsulta] >= MinDataFiltrada) -- Garante que a nota teve alguma atividade no período
+			        ),
+			        DATEDIFF(dNotas[PrimeiraDataConsulta], MaxDataFiltrada, DAY)
+			    )
+			
+			```
+		formatString: 0.0
+		displayFolder: Notas Fiscais\Análise Temporal
+		lineageTag: a286dc8b-adc7-4ec8-a06a-36ee7ee95fc9
+
+	/// Quantidade de notas consultadas mais de uma vez no período. Monitoramento intensivo.
+	measure 'Qtd Notas Múltiplas Consultas no Período' = ```
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			RETURN
+			    CALCULATE(
+			        DISTINCTCOUNT(dNotas[ChaveNotaFiscal]),
+			        NOT(ISBLANK(dNotas[PrimeiraDataConsulta])) && 
+			        NOT(ISBLANK(dNotas[UltimaDataConsulta])) &&
+			        dNotas[PrimeiraDataConsulta] <> dNotas[UltimaDataConsulta] && -- Apenas notas com mais de uma consulta
+			        dNotas[UltimaDataConsulta] >= MinDataFiltrada && -- Última consulta no período
+			        dNotas[UltimaDataConsulta] <= MaxDataFiltrada
+			    )
+			
+			```
+		formatString: 0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 4e0fd9ec-bbd1-483b-876a-45f0ed4db496
+
+	/// Percentual de notas cuja última consulta foi no período. Atividade recente.
+	measure '% Notas Última Consulta' = DIVIDE([Qtd Notas Última Consulta no Período], [Qtd Total de Notas no Período])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: bb39e285-3cf3-4d09-88ab-20cbd4cb9ba5
+
+	/// Quantidade de notas consultadas pela primeira vez (histórico completo).
+	measure 'Qtd Notas Consultadas Primeira Vez' =
+			
+			VAR MesSelecionado = SELECTEDVALUE('Selecionar Mês (Notas Primeira Vez)'[Selecionar Mês], 12)
+			VAR MesAtual = MAX(dCalendario[MesNo])
+			VAR AnoAtual = MAX(dCalendario[Ano])
+			VAR AnoSelecionado = SELECTEDVALUE(dCalendario[Ano], YEAR(TODAY()))
+			VAR _QtdeGeral = [Qtd Total de Notas no Período]
+			VAR _QtdeNoPeriodo = [Qtd Notas Primeira Consulta no Período]
+			VAR _Resultado = DIVIDE(_QtdeNoPeriodo, _QtdeGeral, 0)
+			RETURN
+			    IF(
+			        AnoAtual = AnoSelecionado && MesAtual <= MesSelecionado,
+			        _Resultado,  -- ✅ MUDANÇA AQUI: retorna o percentual em vez da quantidade
+			        BLANK()
+			    )
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 65e88a09-3a56-437c-96c5-a9906bc86dd9
+
+	/// Percentual de notas com múltiplas consultas no período. Taxa de retrabalho.
+	measure '% Notas Múltiplas Consultas no Período' = DIVIDE([Qtd Notas Múltiplas Consultas no Período], [Qtd Total de Notas no Período])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: c00f3eff-c4b7-4942-afba-01e6b02e4ed5
+
+	/// Quantidade de emitentes agrupados por Unidade Federativa. Análise geográfica.
+	measure 'Qtd Emitentes por UF' = DISTINCTCOUNT(dNotas[CnpjCpfEmitente])
+		formatString: 0
+		displayFolder: Notas Fiscais\Análise Geográfica
+		lineageTag: 487181f1-1087-484c-bc4b-d035c13ab1fe
+
+	/// Percentual de notas consultadas pela primeira vez sobre o total. Taxa de novas análises.
+	measure '% Notas Consultadas Primeira Vez' = DIVIDE([Qtd Notas Primeira Consulta no Período], [Qtd Total de Notas no Período])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 3730ca9c-c94e-41a4-8028-89b17e695d55
+
+	/// Valor total de notas a vencer no período selecionado. Previsão de recebimentos.
+	measure 'Total a Vencer no Período' =
+			
+			VAR UltimaDataContexto = MAX(dCalendario[Data])
+			RETURN
+			CALCULATE(
+			    [Total de Consultas Realizadas],
+			    fDocumentos[DataVencimento] > UltimaDataContexto
+			)
+		displayFolder: Notas Fiscais\Status
+		lineageTag: 42b66117-2d18-4376-a51c-8536806a94ec
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Soma do valor total de todos os recebíveis na carteira. Representa o valor bruto total da carteira de NFes.
+	measure 'Total da Carteira' = SUM(fCarteira[Valor])
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Carteira\Valores Totais
+		lineageTag: 90d152d4-0ba9-4bbd-9342-3e9b39b7b5dd
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Valor total da carteira considerando apenas as notas fiscais que foram consultadas. Útil para medir o percentual de cobertura das consultas.
+	measure 'Total Carteira Notas Consultadas' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR FiltroNotas = 
+			    FILTER(
+			        fCarteira,
+			        NOT ISBLANK(RELATED(dNotas[ChaveNotaFiscal]))
+			    )
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT ISBLANK(RaizContexto),
+			        CALCULATE(
+			            SUM(fCarteira[Valor]),
+			            FILTER(
+			                FiltroNotas,
+			                fCarteira[CnpjCedenteRaiz] = RaizContexto
+			            )
+			        ),
+			        IF(
+			            NOT ISBLANK(EmitenteSelecionado),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FILTER(
+			                    FiltroNotas,
+			                    fCarteira[NomeCedente] = EmitenteSelecionado
+			                )
+			            ),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FiltroNotas
+			            )
+			        )
+			    )
+			
+			RETURN COALESCE(Resultado, 0)
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Carteira\Valores Totais
+		lineageTag: c2d48ad3-dae2-47bc-9c28-4fbc31a412a3
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Percentual de notas que foram consultadas em relação ao total da carteira. Indicador de cobertura de consultas.
+	measure '% Consultas Realizadas da Carteira' = DIVIDE([Total Carteira Notas Consultadas], [Total Dinâmico])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Carteira\Percentuais
+		lineageTag: 008e5f53-337e-40bd-b348-f48745c0454f
+
+	/// Percentual do valor vencido em relação ao total da carteira. KPI de risco de inadimplência.
+	measure '% Total Vencidos Notas Existentes' =
+			
+			VAR ResultadoPercentual = DIVIDE([Total Vencidos Notas Existentes], [Total Dinâmico], 0)
+			RETURN ResultadoPercentual
+			    // "(vencidos) | " & FORMAT(ResultadoPercentual, "0.0%")
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Carteira\Percentuais
+		lineageTag: ab98388f-ee49-4275-aad2-d91b3595850a
+
+	/// Medida dinâmica que alterna entre diferentes totais com base em seleções do usuário. Utilizada em visuais interativos.
+	measure 'Total Dinâmico' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT ISBLANK(RaizContexto),
+			        CALCULATE(
+			            [Total da Carteira],
+			            REMOVEFILTERS(fCarteira[NomeCedente]),
+			            fCarteira[CnpjCedenteRaiz] = RaizContexto
+			        ),
+			        IF(
+			            NOT ISBLANK(EmitenteSelecionado),
+			            CALCULATE(
+			                [Total da Carteira],
+			                fCarteira[NomeCedente] = EmitenteSelecionado
+			            ),
+			            [Total da Carteira]
+			        )
+			    )
+			
+			RETURN Resultado
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Carteira\Valores Totais
+		lineageTag: cfc7442e-594a-4104-9e3a-3ec52d107a14
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Valor total dos recebíveis que já passaram da data de vencimento. Indicador de risco de inadimplência.
+	measure 'Total Vencidos Notas Existentes' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			VAR DataHoje = TODAY()
+			
+			VAR FiltroVencidos = 
+			    FILTER(
+			        fCarteira,
+			        fCarteira[DataVencimento] < DataHoje
+			        && NOT ISBLANK(RELATED(dNotas[ChaveNotaFiscal]))
+			    )
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT ISBLANK(RaizContexto),
+			        CALCULATE(
+			            SUM(fCarteira[Valor]),
+			            FILTER(
+			                FiltroVencidos,
+			                fCarteira[CnpjCedenteRaiz] = RaizContexto
+			            )
+			        ),
+			        IF(
+			            NOT ISBLANK(EmitenteSelecionado),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FILTER(
+			                    FiltroVencidos,
+			                    fCarteira[NomeCedente] = EmitenteSelecionado
+			                )
+			            ),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FiltroVencidos
+			            )
+			        )
+			    )
+			
+			RETURN COALESCE(Resultado, 0)
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Carteira\Valores Totais
+		lineageTag: 97883516-7e08-410b-87f0-2bffc91f45e7
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Valor total de notas classificadas como 'A Avaliar' segundo critérios de criticidade. Nível intermediário de risco.
+	measure 'Total a Avaliar Notas Existentes' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR FiltroAvaliar = 
+			    FILTER(
+			        fCarteira,
+			        NOT ISBLANK(RELATED(dNotas[ChaveNotaFiscal])) 
+			        && RELATED(dNotas[CriticidadeEvento]) = "AVALIAR"
+			    )
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT ISBLANK(RaizContexto),
+			        CALCULATE(
+			            SUM(fCarteira[Valor]),
+			            FILTER(
+			                FiltroAvaliar,
+			                fCarteira[CnpjCedenteRaiz] = RaizContexto
+			            )
+			        ),
+			        IF(
+			            NOT ISBLANK(EmitenteSelecionado),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FILTER(
+			                    FiltroAvaliar,
+			                    fCarteira[NomeCedente] = EmitenteSelecionado
+			                )
+			            ),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FiltroAvaliar
+			            )
+			        )
+			    )
+			
+			RETURN COALESCE(Resultado, 0)
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Carteira\Criticidade
+		lineageTag: bc88630d-f8fb-45dc-bca6-23311a61d60c
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Percentual do valor classificado como 'A Avaliar' sobre o total. Indica proporção de risco médio.
+	measure '% Criticidade a Avaliar' = DIVIDE([Total a Avaliar Notas Existentes], [Total Carteira Notas Consultadas])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Carteira\Percentuais
+		lineageTag: 891def57-00f9-4ae8-b8d4-c999b0eea0ff
+
+	/// Valor total de notas classificadas como 'Crítico' segundo critérios de risco. Maior nível de atenção requerida.
+	measure 'Total Crítico Notas Existentes' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR FiltroCritico = 
+			    FILTER(
+			        fCarteira,
+			        NOT ISBLANK(RELATED(dNotas[ChaveNotaFiscal])) 
+			        && RELATED(dNotas[CriticidadeEvento]) = "CRÍTICO"
+			    )
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT ISBLANK(RaizContexto),
+			        CALCULATE(
+			            SUM(fCarteira[Valor]),
+			            FILTER(
+			                FiltroCritico,
+			                fCarteira[CnpjCedenteRaiz] = RaizContexto
+			            )
+			        ),
+			        IF(
+			            NOT ISBLANK(EmitenteSelecionado),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FILTER(
+			                    FiltroCritico,
+			                    fCarteira[NomeCedente] = EmitenteSelecionado
+			                )
+			            ),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FiltroCritico
+			            )
+			        )
+			    )
+			
+			RETURN COALESCE(Resultado, 0)
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Carteira\Criticidade
+		lineageTag: 0aa50901-ae5b-4811-96e0-32b66ce23b15
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Percentual do valor classificado como 'Crítico' sobre o total. Indica proporção de alto risco.
+	measure '% Criticidade Crítico' = DIVIDE([Total Crítico Notas Existentes], [Total Carteira Notas Consultadas])
+		formatString: #,0.0%;-#,0.0%;#,0.0%
+		displayFolder: Carteira\Percentuais
+		lineageTag: 1ba7653b-3fd7-42ba-a0e7-5ff47777e1ef
+
+	/// Valor total de notas classificadas como 'Sem Risco'. Recebíveis considerados seguros.
+	measure 'Total Sem Risco Notas Existentes' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR FiltroSemRisco = 
+			    FILTER(
+			        fCarteira,
+			        NOT ISBLANK(RELATED(dNotas[ChaveNotaFiscal])) 
+			        && RELATED(dNotas[CriticidadeEvento]) = "SEM RISCO"
+			    )
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT ISBLANK(RaizContexto),
+			        CALCULATE(
+			            SUM(fCarteira[Valor]),
+			            FILTER(
+			                FiltroSemRisco,
+			                fCarteira[CnpjCedenteRaiz] = RaizContexto
+			            )
+			        ),
+			        IF(
+			            NOT ISBLANK(EmitenteSelecionado),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FILTER(
+			                    FiltroSemRisco,
+			                    fCarteira[NomeCedente] = EmitenteSelecionado
+			                )
+			            ),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FiltroSemRisco
+			            )
+			        )
+			    )
+			
+			RETURN COALESCE(Resultado, 0)
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Carteira\Criticidade
+		lineageTag: 12ac0c43-2d18-401b-acfe-87227def9771
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Percentual do valor classificado como 'Sem Risco' sobre o total. Indica proporção segura da carteira.
+	measure '% Criticidade Sem Risco' = DIVIDE([Total Sem Risco Notas Existentes], [Total Carteira Notas Consultadas])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Carteira\Percentuais
+		lineageTag: bdfb1fc8-8a86-4e3e-a7d9-9e833fb33a6e
+
+	/// Quantidade de cedentes agrupados por faixas de volume de notas. Análise de distribuição.
+	measure 'Qtd Cedentes por Faixa de Notas' =
+			
+			VAR TabelaCedentes =
+			    SUMMARIZE(
+			        FILTER(
+			            fCarteira,
+			            RELATED(dNotas[ChaveNotaFiscal]) <> BLANK()
+			        ),
+			        fCarteira[CnpjCpfCedente],
+			        "TotalCedente", [Qtd Cedentes por Cedente]
+			    )
+			VAR FaixaSelecionada = SELECTEDVALUE('_Faixas de Qtde Notas'[Faixa])
+			VAR MinFaixa = SELECTEDVALUE('_Faixas de Qtde Notas'[Min])
+			VAR MaxFaixa = SELECTEDVALUE('_Faixas de Qtde Notas'[Max])
+			RETURN
+			    COUNTROWS(
+			        FILTER(
+			            TabelaCedentes,
+			            [TotalCedente] >= MinFaixa && [TotalCedente] < MaxFaixa
+			        )
+			    )
+		formatString: 0
+		displayFolder: Carteira\Análise de Cedentes
+		lineageTag: 5984489c-8fab-4262-888c-c2e84787b2ed
+
+	/// Quantidade total de cedentes únicos na carteira.
+	measure 'Qtd Cedentes' = DISTINCTCOUNT(fCarteira[CnpjCpfCedente])
+		formatString: 0
+		displayFolder: Carteira\Análise de Cedentes
+		lineageTag: e34a3c92-090a-4511-b258-0e1ce9b3a94e
+
+	/// Percentual de cedentes em relação ao total. Usado para análise de concentração.
+	measure '% Qtd Cedentes Notas Existentes' = DIVIDE([Qtd Cedentes Notas Existentes], [Qtd Cedentes])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Carteira\Percentuais
+		lineageTag: 7dde3267-aaa1-4b43-94fd-3da868f867e0
+
+	/// Percentual sobre o total da carteira. Medida genérica para cálculos proporcionais.
+	measure '% Total Carteira Notas Existentes' =
+			
+			VAR ResultadoPercentual = [% Consultas Realizadas da Carteira]
+			RETURN ResultadoPercentual
+			    // "(consultadas) | " & FORMAT(ResultadoPercentual, "0.0%")
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Carteira\Percentuais
+		lineageTag: 48b3f900-4dfa-42d6-b81a-050281222a31
+
+	/// Tempo médio em dias entre a emissão e a primeira consulta da nota. Indicador de agilidade operacional.
+	measure 'Média Dias Primeira Consulta' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR TabelaFiltrada =
+			    FILTER(
+			        fCarteira,
+			        // Garante que existe uma nota correspondente
+			        NOT(ISBLANK(
+			            LOOKUPVALUE(
+			                dNotas[ChaveNotaFiscal],
+			                dNotas[ChaveNotaFiscal], fCarteira[ChaveNotaFiscal]
+			            )
+			        )) &&
+			        NOT(ISBLANK(fCarteira[DataLancamento]))
+			    )
+			
+			VAR TabelaComDias =
+			    ADDCOLUMNS(
+			        TabelaFiltrada,
+			        "@DiasAteConsulta",
+			        DATEDIFF(
+			            fCarteira[DataLancamento],
+			            LOOKUPVALUE(
+			                dNotas[PrimeiraDataConsulta],
+			                dNotas[ChaveNotaFiscal], fCarteira[ChaveNotaFiscal]
+			            ),
+			            DAY
+			        )
+			    )
+			
+			VAR TabelaFinal =
+			    FILTER(
+			        TabelaComDias,
+			        // Filtro Grupo/Individual
+			        IF(
+			            TipoSelecionado = "Grupo" && NOT(ISBLANK(RaizContexto)),
+			            fCarteira[CnpjCedenteRaiz] = RaizContexto,
+			            IF(
+			                NOT(ISBLANK(EmitenteSelecionado)),
+			                fCarteira[NomeCedente] = EmitenteSelecionado,
+			                TRUE()
+			            )
+			        )
+			    )
+			
+			VAR MediaDias = 
+			    AVERAGEX(
+			        TabelaFinal,
+			        [@DiasAteConsulta]
+			    )
+			
+			RETURN
+			    IF(
+			        ISBLANK(MediaDias),
+			        0,
+			        MediaDias
+			    )
+			
+			```
+		displayFolder: Carteira\Análise Temporal
+		lineageTag: 0eea5c34-7c6b-449b-bb5c-67f67c053693
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Quantidade de cedentes agrupados por faixas de valor. Análise de concentração financeira.
+	measure 'Qtd Cedentes por Faixa de Valor' = ```
+			
+			VAR TabelaCedentes =
+				SUMMARIZE(
+			        FILTER(
+			            fCarteira,
+			            RELATED(dNotas[ChaveNotaFiscal]) <> BLANK()
+			        ),
+			        fCarteira[CnpjCpfCedente],
+			        "TotalCedente", [Total da Carteira]
+			    )
+			VAR FaixaSelecionada = SELECTEDVALUE('_Faixas de Valores'[Faixa])
+			VAR MinFaixa = SELECTEDVALUE('_Faixas de Valores'[Min])
+			VAR MaxFaixa = SELECTEDVALUE('_Faixas de Valores'[Max])
+			RETURN
+			    COUNTROWS(
+			        FILTER(
+			            TabelaCedentes,
+			            [TotalCedente] >= MinFaixa && [TotalCedente] < MaxFaixa
+			        )
+			    )
+			
+			```
+		formatString: 0
+		displayFolder: Carteira\Análise de Cedentes
+		lineageTag: f88d35d9-6cd1-4ee9-a7d2-1db02cae549a
+
+	/// [Auxiliar] Cálculo dinâmico de emitentes por faixa de valores. Usado em visuais interativos.
+	measure '_Emitentes por Faixa Dinâmica' = ```
+			
+			VAR TipoSelecionado = SELECTEDVALUE('Parâmetro Faixa'[Valor])
+			
+			// Obter os valores da faixa ATUAL (linha do eixo X)
+			VAR FaixaAtual = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			VAR OrdemAtual = SELECTEDVALUE('_Faixas Unificadas'[Ordem])
+			
+			// Buscar Min/Max APENAS do tipo selecionado e faixa atual
+			VAR MinFaixa = 
+			    CALCULATE(
+			        SELECTEDVALUE('_Faixas Unificadas'[Min]),
+			        FILTER(
+			            '_Faixas Unificadas',
+			            '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado &&
+			            '_Faixas Unificadas'[Faixa] = FaixaAtual
+			        )
+			    )
+			
+			VAR MaxFaixa = 
+			    CALCULATE(
+			        SELECTEDVALUE('_Faixas Unificadas'[Max]),
+			        FILTER(
+			            '_Faixas Unificadas',
+			            '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado &&
+			            '_Faixas Unificadas'[Faixa] = FaixaAtual
+			        )
+			    )
+			
+			// Se não encontrou Min/Max (faixa não existe para o tipo selecionado), retorna BLANK
+			VAR ValidarFaixa = ISBLANK(MinFaixa) || ISBLANK(MaxFaixa)
+			
+			VAR TabelaCedentes = 
+			    SUMMARIZE(
+			        FILTER(
+			            fCarteira,
+			            RELATED(dNotas[ChaveNotaFiscal]) <> BLANK()
+			        ),
+			        fCarteira[CnpjCpfCedente],
+			        "TotalNotas", [Qtd Cedentes por Cedente],
+			        "TotalValor", [Total Carteira Notas Consultadas]
+			    )
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = 0,
+			        COUNTROWS(
+			            FILTER(
+			                TabelaCedentes,
+			                [TotalNotas] >= MinFaixa && [TotalNotas] < MaxFaixa
+			            )
+			        ),
+			        COUNTROWS(
+			            FILTER(
+			                TabelaCedentes,
+			                [TotalValor] >= MinFaixa && [TotalValor] < MaxFaixa
+			            )
+			        )
+			    )
+			
+			RETURN
+			    IF(ValidarFaixa, BLANK(), Resultado)
+			
+			```
+		formatString: 0
+		displayFolder: _Auxiliares\Cálculos Dinâmicos
+		lineageTag: 0163f0e9-359b-41b8-b5f9-3ac56836369a
+
+	/// Localização geográfica (cidade/UF) do sacado. Usado em análises regionais.
+	measure 'Praça do Sacado' =
+			
+			CALCULATE(
+			    IF (SELECTEDVALUE(fCarteira[MunicipioSacado]) <> BLANK(),
+			         CONCATENATE(SELECTEDVALUE(fCarteira[MunicipioSacado]), CONCATENATE(" - ", SELECTEDVALUE(fCarteira[UfSacado]))),
+			        BLANK()
+			        )
+			)
+		displayFolder: Carteira\Análise Geográfica
+		lineageTag: 865830d1-262e-401d-9616-b45d7355fb74
+
+	/// Contagem de cedentes por cliente específico. Usado em análises detalhadas.
+	measure 'Qtd Cedentes por Cedente' =
+			
+			CALCULATE(
+			    DISTINCTCOUNT(fCarteira[ChaveNotaFiscal]),
+			    FILTER(
+			        fCarteira,
+			        RELATED(dNotas[ChaveNotaFiscal]) <> BLANK()
+			    )
+			)
+		formatString: 0
+		displayFolder: Carteira\Análise de Cedentes
+		lineageTag: 3225869b-64bd-4d44-b963-d77eb23e13aa
+
+	/// Contagem geral de cedentes considerando apenas notas existentes na base.
+	measure 'Qtd Cedentes Notas Existentes' =
+			
+			CALCULATE(
+			    DISTINCTCOUNT(fCarteira[CnpjCpfCedente]),
+			    FILTER(
+			        fCarteira,
+			        RELATED(dNotas[ChaveNotaFiscal]) <> BLANK()
+			    )
+			)
+		formatString: 0
+		displayFolder: Carteira\Análise de Cedentes
+		lineageTag: cb12bb19-b028-4c24-819a-28ca3ddfecb6
+
+	/// Localização geográfica (cidade/UF) do cedente. Usado em análises regionais.
+	measure 'Praça do Cedente' =
+			
+			var praca =
+			    CALCULATE(
+			        IF (SELECTEDVALUE(fCarteira[MunicipioCedente]) <> BLANK(),
+			            CONCATENATE(SELECTEDVALUE(fCarteira[MunicipioCedente]), CONCATENATE(" - ", SELECTEDVALUE(fCarteira[UfCedente]))),
+			            BLANK()
+			            )
+			    )
+			return praca
+		displayFolder: Carteira\Análise Geográfica
+		lineageTag: 8c8201f0-061b-44eb-a443-7c229e5bfc6b
+
+	/// [Auxiliar] Filtro aplicado em matrizes para agrupar dados. Controle de contexto de cálculo.
+	measure '_Filtro Matriz Grupo' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			VAR CedenteNaLinha = SELECTEDVALUE(fCarteira[NomeCedente])
+			
+			RETURN
+			    IF(
+			        ISBLANK(EmitenteSelecionado),
+			        1, // Sem filtro, mostra tudo
+			        IF(
+			            NOT(ISBLANK(RaizContexto)),
+			            // Modo Grupo
+			            VAR RaizNaLinha = 
+			                CALCULATE(
+			                    MIN(fCarteira[CnpjCedenteRaiz]),
+			                    fCarteira[NomeCedente] = CedenteNaLinha
+			                )
+			            RETURN IF(RaizNaLinha = RaizContexto, 1, BLANK()),
+			            // Modo Individual
+			            IF(CedenteNaLinha = EmitenteSelecionado, 1, BLANK())
+			        )
+			    )
+			```
+		formatString: 0
+		displayFolder: _Auxiliares\Contexto e Filtros
+		lineageTag: c024e586-0391-43a9-8520-d3194af95915
+
+	/// [Auxiliar] Extração da raiz do CNPJ para agrupamento por grupo econômico. Contexto de análise.
+	measure '_Raiz CNPJ Contexto' = ```
+			
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR RaizFiltro = 
+			    IF(
+			        NOT ISBLANK(EmitenteSelecionado),
+			        CALCULATE(
+			            MIN(fCarteira[CnpjCedenteRaiz]),
+			            fCarteira[NomeCedente] = EmitenteSelecionado
+			        ),
+			        BLANK()
+			    )
+			
+			RETURN
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT ISBLANK(RaizFiltro),
+			        RaizFiltro,
+			        BLANK()
+			    )
+			```
+		displayFolder: _Auxiliares\Contexto e Filtros
+		lineageTag: 18e0ba85-3ad2-4076-8325-294e5bdad104
+
+	/// Quantidade de dias em atraso desde a data de vencimento. Indicador de mora.
+	measure 'Dias em Atraso' = ```
+			
+			VAR DataEmissao =
+			    SELECTEDVALUE(dNotas[UltimaDataEmissao])
+			RETURN
+			    IF(
+			        NOT ISBLANK(DataEmissao),
+			        DATEDIFF(DataEmissao, TODAY(), DAY)
+			    )
+			
+			```
+		formatString: 0
+		displayFolder: Carteira\Análise Temporal
+		lineageTag: 080255a3-0810-4512-9e93-75f722584afa
+
+	/// Quantidade total de títulos recebíveis na carteira. Contagem simples de todos os registros.
+	measure 'Qtd Recebíveis' = COUNT(fCarteira[NumeroLancamento])
+		formatString: 0
+		displayFolder: Carteira\Quantidades
+		lineageTag: d176a505-8c28-42a2-9c62-7aa852a1a169
+
+	/// Medida dinâmica de quantidade que alterna entre diferentes contagens com base em seleções do usuário.
+	measure 'Qtd Dinâmica' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT(ISBLANK(RaizContexto)),
+			        // Modo Grupo: calcula pela raiz filtrada
+			        CALCULATE(
+			            [Qtd Recebíveis],
+			            REMOVEFILTERS(fCarteira[NomeCedente]),
+			            fCarteira[CnpjCedenteRaiz] = RaizContexto
+			        ),
+			        // Modo Individual: aplica filtro do emitente selecionado
+			        IF(
+			            NOT(ISBLANK(EmitenteSelecionado)),
+			            CALCULATE(
+			                [Qtd Recebíveis],
+			                fCarteira[NomeCedente] = EmitenteSelecionado
+			            ),
+			            [Qtd Recebíveis]
+			        )
+			    )
+			
+			RETURN Resultado
+			```
+		displayFolder: Carteira\Quantidades
+		lineageTag: 4329549c-f5fd-435d-b626-730feed39834
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// [Auxiliar] Filtro aplicado em tabelas matriciais. Controle de exibição dinâmica.
+	measure '_Filtro Tabela Matriz' = ```
+			
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			// Pega TODAS as raízes visíveis no contexto atual
+			VAR RaizesVisiveis = VALUES(fCarteira[CnpjCedenteRaiz])
+			VAR CedentesVisiveis = VALUES(fCarteira[NomeCedente])
+			
+			// Raiz do emitente selecionado
+			VAR RaizSelecionada = 
+			    IF(
+			        NOT(ISBLANK(EmitenteSelecionado)),
+			        MAXX(
+			            FILTER(
+			                ALL(fCarteira[NomeCedente], fCarteira[CnpjCedenteRaiz]),
+			                fCarteira[NomeCedente] = EmitenteSelecionado
+			            ),
+			            fCarteira[CnpjCedenteRaiz]
+			        ),
+			        BLANK()
+			    )
+			
+			VAR Mostrar = 
+			    IF(
+			        ISBLANK(EmitenteSelecionado),
+			        1, // Sem filtro
+			        IF(
+			            TipoSelecionado = "Grupo",
+			            // Verifica se ALGUMA raiz visível é igual à selecionada
+			            IF(RaizSelecionada IN RaizesVisiveis, 1, BLANK()),
+			            // Individual: verifica se o cedente selecionado está visível
+			            IF(EmitenteSelecionado IN CedentesVisiveis, 1, BLANK())
+			        )
+			    )
+			
+			RETURN Mostrar
+			```
+		formatString: 0
+		displayFolder: _Auxiliares\Contexto e Filtros
+		lineageTag: fef7cb2f-9639-4677-96da-c8c01a7e5f82
+
+	/// Quantidade de recebíveis que tiveram suas NFes consultadas. Permite calcular taxa de consulta.
+	measure 'Qtd Recebíveis Notas Consultadas' =
+			
+			CALCULATE(
+			    [Qtd Recebíveis],
+			    FILTER(
+			        fCarteira,
+			        RELATED(dNotas[ChaveNotaFiscal]) <> BLANK()
+			    )
+			)
+		formatString: 0
+		displayFolder: Carteira\Quantidades
+		lineageTag: b2214289-9d81-46f0-b954-5ba79b4da066
+
+	/// Versão dinâmica da quantidade de recebíveis, ajustando-se conforme seleções do usuário.
+	measure 'Qtd Recebíveis Dinâmica' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT(ISBLANK(RaizContexto)),
+			        // Modo Grupo: calcula pela raiz filtrada
+			        CALCULATE(
+			            [Qtd Recebíveis Notas Consultadas],
+			            REMOVEFILTERS(fCarteira[NomeCedente]),
+			            fCarteira[CnpjCedenteRaiz] = RaizContexto
+			        ),
+			        // Modo Individual: aplica filtro do emitente selecionado
+			        IF(
+			            NOT(ISBLANK(EmitenteSelecionado)),
+			            CALCULATE(
+			                [Qtd Recebíveis Notas Consultadas],
+			                fCarteira[NomeCedente] = EmitenteSelecionado
+			            ),
+			            [Qtd Recebíveis Notas Consultadas]
+			        )
+			    )
+			
+			RETURN Resultado
+			```
+		formatString: 0
+		displayFolder: Carteira\Quantidades
+		lineageTag: d3434e3f-b632-45fd-94b1-e7bdf9481b53
+
+	/// [Auxiliar] Texto da legenda para status de checagem. Elemento de UI.
+	measure '_Legenda Checagem' = SELECTEDVALUE(fCarteira[ChecagemDescricao])
+		displayFolder: _Auxiliares\Legenda e Formação
+		lineageTag: 714b06de-c4dd-430f-aba0-5d189abe644b
+
+	/// [Auxiliar] Texto da legenda para status de canhoto de entrega. Elemento de UI.
+	measure '_Legenda Canhoto' = SELECTEDVALUE(fCarteira[CanhotoDescricao])
+		displayFolder: _Auxiliares\Legenda e Formação
+		lineageTag: cf89d961-33dd-42ea-a5b1-9979bc9183bb
+
+	/// [Auxiliar] Formatação condicional da coluna de vencimento. Destaque visual de datas.
+	measure '_Formatação Coluna Vencimento' =
+			
+			var vDT_vecto = MAX(fCarteira[DataVencimento])
+			var resultado =
+			IF (
+			    vDT_vecto < TODAY(),
+			    "#D64550",
+			    "#37C9EF"
+			)
+			return resultado
+		displayFolder: _Auxiliares\Legenda e Formação
+		lineageTag: b93dc943-6cd4-41ae-b2c1-89cb789ae2d3
+
+	/// [Auxiliar] Data mais recente na carteira. Usado para cálculos relativos de tempo.
+	measure '_Última Data Carteira' = ```
+			
+			CALCULATE (
+			    MAX ( fCarteira[DataCarga] ),
+			    ALL ( fCarteira )
+			)
+			
+			```
+		formatString: General Date
+		displayFolder: _Auxiliares\Contexto e Filtros
+		lineageTag: fc44ff82-4fc5-4d1b-a9f1-2ab18be3fabf
+
+	/// [Auxiliar] Texto exibido em tooltip mostrando a faixa selecionada. Elemento de UI.
+	measure '_Faixa Selecionada Tooltip' =
+			
+			VAR FaixaContexto = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			RETURN FaixaContexto
+		displayFolder: _Auxiliares\Tooltips
+		lineageTag: 72a25ad5-7353-479b-9e81-625324a602fd
+
+	/// [Auxiliar] Nome do cedente exibido em tooltip da faixa. Elemento de UI.
+	measure '_Cedente na Faixa Tooltip' = ```
+			
+			VAR TipoSelecionado = SELECTEDVALUE('Parâmetro Faixa'[Valor])
+			VAR FaixaAtual = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			VAR CedenteAtual = SELECTEDVALUE(fCarteira[CnpjCpfCedente])
+			
+			// Buscar Min/Max da faixa atual
+			VAR MinFaixa = 
+			    CALCULATE(
+			        SELECTEDVALUE('_Faixas Unificadas'[Min]),
+			        FILTER(
+			            ALL('_Faixas Unificadas'),
+			            '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado &&
+			            '_Faixas Unificadas'[Faixa] = FaixaAtual
+			        )
+			    )
+			
+			VAR MaxFaixa = 
+			    CALCULATE(
+			        SELECTEDVALUE('_Faixas Unificadas'[Max]),
+			        FILTER(
+			            ALL('_Faixas Unificadas'),
+			            '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado &&
+			            '_Faixas Unificadas'[Faixa] = FaixaAtual
+			        )
+			    )
+			
+			// Calcular a métrica do cedente atual
+			VAR MetricaCedente = 
+			    IF(
+			        TipoSelecionado = 0,
+			        CALCULATE(
+			            [Qtd Cedentes por Cedente],
+			            fCarteira[CnpjCpfCedente] = CedenteAtual
+			        ),
+			        CALCULATE(
+			            [Total Carteira Notas Consultadas],
+			            fCarteira[CnpjCpfCedente] = CedenteAtual
+			        )
+			    )
+			
+			// Verificar se está na faixa
+			VAR EstaNaFaixa = 
+			    MetricaCedente >= MinFaixa && MetricaCedente < MaxFaixa
+			
+			RETURN
+			    IF(EstaNaFaixa, 1, 0)
+			```
+		formatString: 0
+		displayFolder: _Auxiliares\Tooltips
+		lineageTag: c7957028-7e45-4e48-8f70-94e05861f7e8
+
+	/// [Auxiliar] Valor do cedente formatado para exibição (versão 4). Elemento de UI com formatação específica.
+	measure '_Valor Cedente Formatado v4' = ```
+			
+			VAR TipoSelecionado = SELECTEDVALUE('Parâmetro Faixa'[Valor])
+			VAR CedenteAtual = SELECTEDVALUE(fCarteira[CnpjCpfCedente])
+			VAR FaixaAtual = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			
+			VAR MinFaixa = 
+			    CALCULATE(
+			        MIN('_Faixas Unificadas'[Min]),
+			        ALL('_Faixas Unificadas'),
+			        '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado,
+			        '_Faixas Unificadas'[Faixa] = FaixaAtual
+			    )
+			
+			VAR MaxFaixa = 
+			    CALCULATE(
+			        MAX('_Faixas Unificadas'[Max]),
+			        ALL('_Faixas Unificadas'),
+			        '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado,
+			        '_Faixas Unificadas'[Faixa] = FaixaAtual
+			    )
+			
+			VAR QtdNotas = 
+			    CALCULATE(
+			        [Qtd Cedentes por Cedente],
+			        ALL('_Faixas Unificadas'),
+			        fCarteira[CnpjCpfCedente] = CedenteAtual
+			    )
+			
+			VAR ValorTotal = 
+			    CALCULATE(
+			        [Total Carteira Notas Consultadas],
+			        ALL('_Faixas Unificadas'),
+			        fCarteira[CnpjCpfCedente] = CedenteAtual
+			    )
+			
+			VAR MetricaUsada = 
+			    IF(TipoSelecionado = 0, QtdNotas, ValorTotal)
+			
+			VAR EstaNaFaixa = 
+			    NOT ISBLANK(MetricaUsada) &&
+			    NOT ISBLANK(MinFaixa) &&
+			    NOT ISBLANK(MaxFaixa) &&
+			    MetricaUsada >= MinFaixa && 
+			    MetricaUsada < MaxFaixa
+			
+			VAR ValorFormatado = 
+			    SWITCH(
+			        TRUE(),
+			        TipoSelecionado = 0, FORMAT(ROUND(QtdNotas, 0), "0"),
+			        FORMAT(ValorTotal, "R$ #,##0")
+			    )
+			
+			RETURN
+			    IF(EstaNaFaixa, ValorFormatado, BLANK())
+			```
+		displayFolder: _Auxiliares\Tooltips
+		lineageTag: 9c08a096-6e5d-46b8-abaa-73fcc0bbb7e3
+
+	/// [Auxiliar] Quantidade de notas do cedente exibida em tooltip. Elemento de UI.
+	measure '_Qtd Notas Cedente Tooltip' = ```
+			
+			VAR CedenteAtual = SELECTEDVALUE(fCarteira[CnpjCpfCedente])
+			VAR FaixaAtual = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			VAR TipoSelecionado = SELECTEDVALUE('Parâmetro Faixa'[Valor])
+			
+			VAR MinFaixa = 
+			    CALCULATE(
+			        SELECTEDVALUE('_Faixas Unificadas'[Min]),
+			        FILTER(
+			            ALL('_Faixas Unificadas'),
+			            '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado &&
+			            '_Faixas Unificadas'[Faixa] = FaixaAtual
+			        )
+			    )
+			
+			VAR MaxFaixa = 
+			    CALCULATE(
+			        SELECTEDVALUE('_Faixas Unificadas'[Max]),
+			        FILTER(
+			            ALL('_Faixas Unificadas'),
+			            '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado &&
+			            '_Faixas Unificadas'[Faixa] = FaixaAtual
+			        )
+			    )
+			
+			VAR QtdNotas = 
+			    CALCULATE(
+			        [Qtd Cedentes por Cedente],
+			        fCarteira[CnpjCpfCedente] = CedenteAtual
+			    )
+			
+			VAR EstaNaFaixa = 
+			    TipoSelecionado = 0 && 
+			    QtdNotas >= MinFaixa && 
+			    QtdNotas < MaxFaixa
+			
+			RETURN
+			    IF(EstaNaFaixa, INT(QtdNotas), BLANK())
+			```
+		formatString: 0
+		displayFolder: _Auxiliares\Tooltips
+		lineageTag: e7b9774d-1f3e-4094-b8b6-c80e5ea43d70
+
+	/// [Auxiliar] Valor em R$ do cedente exibido em tooltip. Elemento de UI.
+	measure '_Valor R$ Cedente Tooltip' = ```
+			
+			VAR CedenteAtual = SELECTEDVALUE(fCarteira[CnpjCpfCedente])
+			VAR FaixaAtual = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			VAR TipoSelecionado = SELECTEDVALUE('Parâmetro Faixa'[Valor])
+			
+			VAR MinFaixa = 
+			    CALCULATE(
+			        SELECTEDVALUE('_Faixas Unificadas'[Min]),
+			        FILTER(
+			            ALL('_Faixas Unificadas'),
+			            '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado &&
+			            '_Faixas Unificadas'[Faixa] = FaixaAtual
+			        )
+			    )
+			
+			VAR MaxFaixa = 
+			    CALCULATE(
+			        SELECTEDVALUE('_Faixas Unificadas'[Max]),
+			        FILTER(
+			            ALL('_Faixas Unificadas'),
+			            '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado &&
+			            '_Faixas Unificadas'[Faixa] = FaixaAtual
+			        )
+			    )
+			
+			VAR ValorTotal = 
+			    CALCULATE(
+			        [Total Carteira Notas Consultadas],
+			        fCarteira[CnpjCpfCedente] = CedenteAtual
+			    )
+			
+			VAR EstaNaFaixa = 
+			    TipoSelecionado <> 0 && 
+			    ValorTotal >= MinFaixa && 
+			    ValorTotal < MaxFaixa
+			
+			RETURN
+			    IF(EstaNaFaixa, ValorTotal, BLANK())
+			```
+		displayFolder: _Auxiliares\Tooltips
+		lineageTag: 8837c99f-2e7d-4933-91dd-c2e4855bf917
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// [Auxiliar] Percentual de emitentes por faixa dinâmica. Cálculo proporcional auxiliar.
+	measure '_% Emitentes por Faixa Dinâmica' = ```
+			
+			VAR TipoSelecionado = SELECTEDVALUE('Parâmetro Faixa'[Valor])
+			
+			// Obter os valores da faixa ATUAL (linha do eixo X)
+			VAR FaixaAtual = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			VAR OrdemAtual = SELECTEDVALUE('_Faixas Unificadas'[Ordem])
+			
+			// Buscar Min/Max APENAS do tipo selecionado e faixa atual
+			VAR MinFaixa = 
+			    CALCULATE(
+			        SELECTEDVALUE('_Faixas Unificadas'[Min]),
+			        FILTER(
+			            '_Faixas Unificadas',
+			            '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado &&
+			            '_Faixas Unificadas'[Faixa] = FaixaAtual
+			        )
+			    )
+			
+			VAR MaxFaixa = 
+			    CALCULATE(
+			        SELECTEDVALUE('_Faixas Unificadas'[Max]),
+			        FILTER(
+			            '_Faixas Unificadas',
+			            '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado &&
+			            '_Faixas Unificadas'[Faixa] = FaixaAtual
+			        )
+			    )
+			
+			// Se não encontrou Min/Max (faixa não existe para o tipo selecionado), retorna BLANK
+			VAR ValidarFaixa = ISBLANK(MinFaixa) || ISBLANK(MaxFaixa)
+			
+			VAR TabelaCedentes = 
+			    SUMMARIZE(
+			        FILTER(
+			            fCarteira,
+			            RELATED(dNotas[ChaveNotaFiscal]) <> BLANK()
+			        ),
+			        fCarteira[CnpjCpfCedente],
+			        "TotalNotas", [Qtd Cedentes por Cedente],
+			        "TotalValor", [Total Carteira Notas Consultadas]
+			    )
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = 0,
+			        DIVIDE(
+			            COUNTROWS(
+			                FILTER(
+			                    TabelaCedentes,
+			                    [TotalNotas] >= MinFaixa && [TotalNotas] < MaxFaixa
+			                )
+			            ), [Qtd Cedentes Notas Existentes]
+			        ),
+			        DIVIDE(
+			            COUNTROWS(
+			                FILTER(
+			                    TabelaCedentes,
+			                    [TotalValor] >= MinFaixa && [TotalValor] < MaxFaixa
+			                )
+			                ),  [Qtd Cedentes Notas Existentes]
+			            )
+			        )    
+			
+			RETURN
+			    IF(ValidarFaixa, BLANK(), Resultado)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: _Auxiliares\Cálculos Dinâmicos
+		lineageTag: e8bfa408-c947-4ed9-9d79-45ef57b17b45
+
+	/// [Auxiliar] Total geral exibido em card tooltip. Elemento de UI com valor agregado.
+	measure '_Total Geral Card Tooltip' = ```
+			
+			VAR TipoSelecionado = SELECTEDVALUE('Parâmetro Faixa'[Valor])
+			VAR FaixaAtual = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			
+			VAR MinFaixa = 
+			    CALCULATE(
+			        MIN('_Faixas Unificadas'[Min]),
+			        ALL('_Faixas Unificadas'),
+			        '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado,
+			        '_Faixas Unificadas'[Faixa] = FaixaAtual
+			    )
+			
+			VAR MaxFaixa = 
+			    CALCULATE(
+			        MAX('_Faixas Unificadas'[Max]),
+			        ALL('_Faixas Unificadas'),
+			        '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado,
+			        '_Faixas Unificadas'[Faixa] = FaixaAtual
+			    )
+			
+			// Tabela com todos os cedentes e seus totais
+			VAR TabelaCedentes = 
+			    ADDCOLUMNS(
+			        VALUES(fCarteira[CnpjCpfCedente]),
+			        "QtdNotas", 
+			            CALCULATE(
+			                [Qtd Cedentes por Cedente],
+			                ALL('_Faixas Unificadas')
+			            ),
+			        "ValorTotal", 
+			            CALCULATE(
+			                [Total Carteira Notas Consultadas],
+			                ALL('_Faixas Unificadas')
+			            )
+			    )
+			
+			// Filtrar cedentes que estão na faixa
+			VAR CedentesFiltrados = 
+			    FILTER(
+			        TabelaCedentes,
+			        IF(
+			            TipoSelecionado = 0,
+			            [QtdNotas] >= MinFaixa && [QtdNotas] < MaxFaixa,
+			            [ValorTotal] >= MinFaixa && [ValorTotal] < MaxFaixa
+			        )
+			    )
+			
+			// Somar o total conforme o tipo
+			VAR TotalGeral = 
+			    IF(
+			        TipoSelecionado = 0,
+			        SUMX(CedentesFiltrados, [QtdNotas]),
+			        SUMX(CedentesFiltrados, [ValorTotal])
+			    )
+			
+			// Formatar o resultado
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = 0,
+			        FORMAT(ROUND(TotalGeral, 0), "0"),
+			        FORMAT(TotalGeral, "R$ #,##0")
+			    )
+			
+			RETURN Resultado
+			```
+		displayFolder: _Auxiliares\Tooltips
+		lineageTag: 235abbf9-3f7b-4fc6-b389-6981da5a83ef
+
+	/// [Auxiliar] Identificação da faixa atual em tooltip. Elemento de UI contextual.
+	measure '_Faixa Atual Tooltip' =
+			
+			SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+		displayFolder: _Auxiliares\Tooltips
+		lineageTag: 875d339d-42c0-4ebd-a154-4d933251bf19
+
+	/// [Auxiliar] Valor mínimo da faixa exibido em tooltip. Limite inferior da faixa.
+	measure '_Mínimo Faixa Tooltip' = ```
+			
+			VAR TipoSelecionado = SELECTEDVALUE('Parâmetro Faixa'[Valor])
+			VAR FaixaAtual = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			
+			VAR MinFaixa = 
+			    CALCULATE(
+			        MIN('_Faixas Unificadas'[Min]),
+			        ALL('_Faixas Unificadas'),
+			        '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado,
+			        '_Faixas Unificadas'[Faixa] = FaixaAtual
+			    )
+			
+			RETURN
+			    IF(
+			        TipoSelecionado = 0,
+			        FORMAT(MinFaixa, "0"),
+			        FORMAT(MinFaixa, "R$ #,##0")
+			    )
+			```
+		displayFolder: _Auxiliares\Tooltips
+		lineageTag: ffaf9be5-3537-44dc-b509-f2b530e3bab7
+
+	/// [Auxiliar] Valor máximo da faixa exibido em tooltip. Limite superior da faixa.
+	measure '_Máximo Faixa Tooltip' = ```
+			
+			VAR TipoSelecionado = SELECTEDVALUE('Parâmetro Faixa'[Valor])
+			VAR FaixaAtual = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			
+			VAR MaxFaixa = 
+			    CALCULATE(
+			        MAX('_Faixas Unificadas'[Max]),
+			        ALL('_Faixas Unificadas'),
+			        '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado,
+			        '_Faixas Unificadas'[Faixa] = FaixaAtual
+			    )
+			
+			RETURN
+			    IF(
+			        TipoSelecionado = 0,
+			        FORMAT(MaxFaixa, "0"),
+			        FORMAT(MaxFaixa, "R$ #,##0")
+			    )
+			```
+		displayFolder: _Auxiliares\Tooltips
+		lineageTag: 546fa123-231b-4d25-bc5b-957a8fe70e26
+
+	/// [Auxiliar] Informação completa da faixa em tooltip. Descrição detalhada.
+	measure '_Info Faixa Completa Tooltip' = ```
+			
+			VAR TipoSelecionado = SELECTEDVALUE('Parâmetro Faixa'[Valor])
+			VAR FaixaAtual = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			
+			VAR MinFaixa = 
+			    CALCULATE(
+			        MIN('_Faixas Unificadas'[Min]),
+			        ALL('_Faixas Unificadas'),
+			        '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado,
+			        '_Faixas Unificadas'[Faixa] = FaixaAtual
+			    )
+			
+			VAR MaxFaixa = 
+			    CALCULATE(
+			        MAX('_Faixas Unificadas'[Max]),
+			        ALL('_Faixas Unificadas'),
+			        '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado,
+			        '_Faixas Unificadas'[Faixa] = FaixaAtual
+			    )
+			
+			VAR TipoTexto = IF(TipoSelecionado = 0, "Qtde de Notas", "Valores")
+			
+			VAR MinFormatado = 
+			    IF(TipoSelecionado = 0, FORMAT(MinFaixa, "0"), FORMAT(MinFaixa, "R$ #,##0"))
+			
+			VAR MaxFormatado = 
+			    IF(TipoSelecionado = 0, FORMAT(MaxFaixa, "0"), FORMAT(MaxFaixa, "R$ #,##0"))
+			
+			RETURN
+			    IF(
+			        FaixaAtual = "V5",
+			        "Faixa " & FaixaAtual & " (" & TipoTexto & "): Maior igual a " & MinFormatado,
+			        "Faixa " & FaixaAtual & " (" & TipoTexto & "): " & MinFormatado & " a " & MaxFormatado
+			    )
+			```
+		displayFolder: _Auxiliares\Tooltips
+		lineageTag: 70d9aaaa-32eb-4ca4-9c2b-d7963650e462
+
+	/// [Auxiliar] Valor numérico do cedente sem formatação. Base para cálculos.
+	measure '_Valor Cedente Numérico' = ```
+			
+			VAR TipoSelecionado = SELECTEDVALUE('Parâmetro Faixa'[Valor])
+			VAR CedenteAtual = SELECTEDVALUE(fCarteira[CnpjCpfCedente])
+			VAR FaixaAtual = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			
+			VAR MinFaixa = 
+			    CALCULATE(
+			        MIN('_Faixas Unificadas'[Min]),
+			        ALL('_Faixas Unificadas'),
+			        '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado,
+			        '_Faixas Unificadas'[Faixa] = FaixaAtual
+			    )
+			
+			VAR MaxFaixa = 
+			    CALCULATE(
+			        MAX('_Faixas Unificadas'[Max]),
+			        ALL('_Faixas Unificadas'),
+			        '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado,
+			        '_Faixas Unificadas'[Faixa] = FaixaAtual
+			    )
+			
+			VAR QtdNotas = 
+			    CALCULATE(
+			        [Qtd Cedentes por Cedente],
+			        ALL('_Faixas Unificadas'),
+			        fCarteira[CnpjCpfCedente] = CedenteAtual
+			    )
+			
+			VAR ValorTotal = 
+			    CALCULATE(
+			        [Total Carteira Notas Consultadas],
+			        ALL('_Faixas Unificadas'),
+			        fCarteira[CnpjCpfCedente] = CedenteAtual
+			    )
+			
+			VAR MetricaUsada = 
+			    IF(TipoSelecionado = 0, QtdNotas, ValorTotal)
+			
+			VAR EstaNaFaixa = 
+			    NOT ISBLANK(MetricaUsada) &&
+			    NOT ISBLANK(MinFaixa) &&
+			    NOT ISBLANK(MaxFaixa) &&
+			    MetricaUsada >= MinFaixa && 
+			    MetricaUsada < MaxFaixa
+			
+			RETURN
+			    IF(EstaNaFaixa, MetricaUsada, BLANK())
+			```
+		displayFolder: _Auxiliares\Cálculos Dinâmicos
+		lineageTag: 793fdc98-aedd-4d2e-88da-8bf60ebd17ad
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// [Auxiliar] Valor do cedente (versão 5 - mais recente). Base para cálculos de cedente.
+	measure '_Valor Cedente v5' = ```
+			
+			VAR TipoSelecionado = SELECTEDVALUE('Parâmetro Faixa'[Valor])
+			VAR CedenteAtual = SELECTEDVALUE(fCarteira[CnpjCpfCedente])
+			VAR FaixaAtual = SELECTEDVALUE('_Faixas Unificadas'[Faixa])
+			
+			VAR MinFaixa =
+			    CALCULATE(
+			        MIN('_Faixas Unificadas'[Min]),
+			        ALL('_Faixas Unificadas'),
+			        '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado,
+			        '_Faixas Unificadas'[Faixa] = FaixaAtual
+			    )
+			
+			VAR MaxFaixa =
+			    CALCULATE(
+			        MAX('_Faixas Unificadas'[Max]),
+			        ALL('_Faixas Unificadas'),
+			        '_Faixas Unificadas'[TipoFaixa] = TipoSelecionado,
+			        '_Faixas Unificadas'[Faixa] = FaixaAtual
+			    )
+			
+			VAR QtdNotas =
+			    CALCULATE(
+			        [Qtd Cedentes por Cedente],
+			        ALL('_Faixas Unificadas'),
+			        fCarteira[CnpjCpfCedente] = CedenteAtual
+			    )
+			
+			VAR ValorTotal =
+			    CALCULATE(
+			        [Total Carteira Notas Consultadas],
+			        ALL('_Faixas Unificadas'),
+			        fCarteira[CnpjCpfCedente] = CedenteAtual
+			    )
+			
+			VAR MetricaUsada =
+			    IF(TipoSelecionado = 0, QtdNotas, ValorTotal)
+			
+			VAR EstaNaFaixa =
+			    NOT ISBLANK(MetricaUsada)
+			        && NOT ISBLANK(MinFaixa)
+			        && NOT ISBLANK(MaxFaixa)
+			        && MetricaUsada >= MinFaixa
+			        && MetricaUsada < MaxFaixa
+			
+			RETURN
+			    IF(EstaNaFaixa, MetricaUsada)
+			
+			```
+		displayFolder: _Auxiliares\Cálculos Dinâmicos
+		lineageTag: a500718e-c5f9-4659-8efe-1f8a85577b0c
+
+		formatStringDefinition = ```
+				IF(
+				    SELECTEDVALUE('Parâmetro Faixa'[Valor]) = 0,
+				    "0",
+				    "R$ #,##0"
+				)
+				
+				```
+
+	/// Quantidade total de notas que possuem eventos registrados. Base para análise de rastreamento.
+	measure 'Qtd Total de Notas Eventos' = ```
+			
+			VAR RaizFiltro = [_Raiz CNPJ Contexto Eventos]
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer_Notas[Emitente])
+			
+			VAR NotasComFiltro = 
+			    CALCULATETABLE(
+			        VALUES(fDocumentos[ChaveNotaFiscal]),
+			        IF(NOT(ISBLANK(RaizFiltro)), 
+			            fDocumentos[CnpjCedenteRaiz] = RaizFiltro,
+			            IF(NOT(ISBLANK(EmitenteSelecionado)),
+			                fDocumentos[NomeFantasiaEmitente] = EmitenteSelecionado,
+			                TRUE()
+			            )
+			        )
+			    )
+			
+			RETURN
+			CALCULATE(
+			    DISTINCTCOUNT(fEventos[ChaveNotaFiscal]),
+			    TREATAS(NotasComFiltro, fEventos[ChaveNotaFiscal])
+			)
+			```
+		formatString: 0
+		displayFolder: Eventos\Quantidades
+		lineageTag: 7da70688-29f9-45f4-9d7b-85a2883828e2
+
+	/// Média de eventos registrados por nota fiscal. Indica intensidade de rastreamento.
+	measure 'Média Eventos por Nota' =
+			
+			ROUND(
+			    DIVIDE(
+			        COUNTROWS(fEventos),
+			        DISTINCTCOUNT(fEventos[ChaveNotaFiscal]),
+			        0
+			    ),
+			    2
+			)
+		displayFolder: Eventos\Análise
+		lineageTag: 57db6cff-6493-4b7e-aad3-ff0fbf05f480
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Quantidade total de eventos registrados no sistema. Volume de rastreamento completo.
+	measure 'Qtd Total de Eventos' = COUNTROWS(fEventos)
+		formatString: 0
+		displayFolder: Eventos\Quantidades
+		lineageTag: 9e5a2831-ec44-4bcf-9637-e5067f18b438
+
+	/// Valor total dos documentos que possuem eventos rastreados. Base financeira de eventos.
+	measure 'Valor Total Documentos Eventos' = ```
+			0
+			// VAR RaizFiltro = [_Raiz CNPJ Contexto Eventos]
+			// VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer_Notas[Emitente])
+			
+			// RETURN
+			// CALCULATE(
+			//     SUM(fDocumentos[ValorDuplicata]),
+			//     TREATAS(
+			//         VALUES(fEventos[ChaveNotaFiscal]),
+			//         fDocumentos[ChaveNotaFiscal]
+			//     ),
+			//     IF(NOT(ISBLANK(RaizFiltro)), 
+			//         dn[CnpjCedenteRaiz] = RaizFiltro,
+			//         IF(NOT(ISBLANK(EmitenteSelecionado)),
+			//             fDocumentos[NomeFantasiaEmitente] = EmitenteSelecionado,
+			//             TRUE()
+			//         )
+			//     )
+			//)
+			```
+		formatString: 0
+		displayFolder: Eventos\Valores
+		lineageTag: d45d08a5-5e48-4c02-9d1b-ffdd995f914d
+
+	/// Percentual do valor com preponderância de eventos formatado como texto. Display visual.
+	measure '% Valor com Preponderância (Texto)' = "(encerradas) | " & FORMAT([% Valor com Preponderância], "0.0%")
+		displayFolder: Eventos\Preponderância
+		lineageTag: 9fdf3cab-708e-4b58-b942-dd79dc5eed41
+
+	/// Quantidade de notas que ultrapassaram o período de preponderância. Alerta de prazo.
+	measure 'Qtd Notas com Preponderância' =
+			
+			CALCULATE(
+			    DISTINCTCOUNT(fEventos[ChaveNotaFiscal]),
+			    FILTER(
+			        dEventos,
+			        dEventos[PreponderanciaCodigo] = 1
+			    )
+			)
+		formatString: 0
+		displayFolder: Eventos\Preponderância
+		lineageTag: 0b857478-3d3d-48c6-b05d-7ebe1aed8b60
+
+	/// Valor financeiro das notas com preponderância ultrapassada. Risco de perda.
+	measure 'Valor Notas com Preponderância' =
+			
+			CALCULATE(
+			    [Valor Total Documentos Eventos],
+			    FILTER(
+			        dEventos,
+			        dEventos[PreponderanciaCodigo] = 1
+			    )
+			)
+		displayFolder: Eventos\Preponderância
+		lineageTag: ff297b21-8036-4b3d-968e-b195e0f8e02e
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Percentual do valor com preponderância sobre o total. KPI de risco temporal.
+	measure '% Valor com Preponderância' =
+			
+			DIVIDE(
+			    [Valor Notas com Preponderância],
+			    [Valor Total Documentos Eventos],
+			    0
+			)
+		displayFolder: Eventos\Preponderância
+		lineageTag: 9137d2e8-143b-4baa-8104-4a04e525d304
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Quantidade de notas cujo último evento registrado é SEMEVT (sem evento). Falta de rastreamento.
+	measure 'Qtd Notas Último Evento SEMEVT' = ```
+			
+			COUNTROWS(
+			    FILTER(
+			        VALUES(fEventos[ChaveNotaFiscal]),
+			        VAR UltimaDataEvento = 
+			            CALCULATE(
+			                MAX(fEventos[DataOcorrencia])
+			            )
+			        VAR UltimoEvento = 
+			            CALCULATE(
+			                SELECTEDVALUE(fEventos[CodigoAssinaturaTipoEvento]),
+			                fEventos[DataOcorrencia] = UltimaDataEvento
+			            )
+			        RETURN
+			            UltimoEvento = "SEMEVT"
+			    )
+			)
+			```
+		formatString: 0
+		displayFolder: Eventos\Análise
+		lineageTag: ceee50bc-c781-46c4-bc6f-ba7aca266fde
+
+	/// [Auxiliar] Raiz do CNPJ no contexto de eventos. Agrupamento por grupo econômico em eventos.
+	measure '_Raiz CNPJ Contexto Eventos' = ```
+			""
+			// VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			// VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer_Notas[Emitente])
+			
+			// VAR RaizFiltro = 
+			//     IF(
+			//         ISBLANK(EmitenteSelecionado),
+			//         BLANK(), // Sem filtro aplicado
+			//         CALCULATE(
+			//             MIN(fDocumentos[CnpjCedenteRaiz]),
+			//             fDocumentos[NomeFantasiaEmitente] = EmitenteSelecionado
+			//         )
+			//     )
+			
+			// RETURN
+			//     IF(
+			//         TipoSelecionado = "Grupo" && NOT(ISBLANK(RaizFiltro)),
+			//         RaizFiltro, // Retorna a raiz para filtrar o grupo
+			//         BLANK() // Individual ou sem filtro
+			//     )
+			```
+		displayFolder: _Auxiliares\Contexto e Filtros
+		lineageTag: db6edc53-1038-46bf-8312-2d255f30e33c
+
+	/// [Auxiliar] Filtro aplicado em tabelas de eventos. Controle de exibição dinâmica de eventos.
+	measure '_Filtro Tabela Matriz Eventos' = ```
+			"" 
+			// VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			// VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer_Notas[Emitente])
+			
+			// // Pega TODAS as raízes visíveis no contexto atual
+			// VAR RaizesVisiveis = VALUES(fDocumentos[CnpjCedenteRaiz])
+			// VAR CedentesVisiveis = VALUES(fDocumentos[NomeFantasiaEmitente])
+			
+			// // Raiz do emitente selecionado
+			// VAR RaizSelecionada = 
+			//     IF(
+			//         NOT(ISBLANK(EmitenteSelecionado)),
+			//         MAXX(
+			//             FILTER(
+			//                 ALL(fDocumentos[NomeFantasiaEmitente], fDocumentos[CnpjCedenteRaiz]),
+			//                 fDocumentos[NomeFantasiaEmitente] = EmitenteSelecionado
+			//             ),
+			//             fDocumentos[CnpjCedenteRaiz]
+			//         ),
+			//         BLANK()
+			//     )
+			
+			// VAR Mostrar = 
+			//     IF(
+			//         ISBLANK(EmitenteSelecionado),
+			//         1, // Sem filtro
+			//         IF(
+			//             TipoSelecionado = "Grupo",
+			//             // Verifica se ALGUMA raiz visível é igual à selecionada
+			//             IF(RaizSelecionada IN RaizesVisiveis, 1, BLANK()),
+			//             // Individual: verifica se o cedente selecionado está visível
+			//             IF(EmitenteSelecionado IN CedentesVisiveis, 1, BLANK())
+			//         )
+			//     )
+			
+			// RETURN Mostrar
+			```
+		displayFolder: _Auxiliares\Contexto e Filtros
+		lineageTag: 6f5d6fb0-44f3-45f8-8bb3-faa839c215ce
+
+	/// Valor total da carteira considerando apenas notas consultadas que possuem eventos. Cruzamento de consultas e eventos.
+	measure 'Total Carteira Eventos Notas Consultadas' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer_Notas[Emitente])
+			
+			VAR FiltroNotas = 
+			    FILTER(
+			        fCarteira,
+			        RELATED(dNotas[ChaveNotaFiscal]) <> BLANK()
+			    )
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT(ISBLANK(RaizContexto)),
+			        // Modo Grupo: filtra pela raiz
+			        CALCULATE(
+			            SUM(fCarteira[Valor]),
+			            FILTER(
+			                FiltroNotas,
+			                fCarteira[CnpjCedenteRaiz] = RaizContexto
+			            )
+			        ),
+			        // Modo Individual: aplica filtro do emitente selecionado
+			        IF(
+			            NOT(ISBLANK(EmitenteSelecionado)),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FILTER(
+			                    FiltroNotas,
+			                    fCarteira[NomeCedente] = EmitenteSelecionado
+			                )
+			            ),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FiltroNotas
+			            )
+			        )
+			    )
+			
+			RETURN COALESCE(Resultado, 0)
+			```
+		displayFolder: Eventos\Valores
+		lineageTag: a9ec3d22-c26e-4b5d-b750-a674e93f4f83
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Quantidade de NFes que possuem eventos registrados. Base para análise de rastreamento.
+	measure 'Qtd NFE Eventos' = DISTINCTCOUNT(fCarteira[ChaveNotaFiscal])
+		formatString: 0
+		displayFolder: Eventos\Carteira
+		lineageTag: c3d8184f-d748-4559-b9d7-1e43d5949f6d
+
+	/// Quantidade de NFes consultadas que possuem eventos. Cruzamento de consultas e rastreamento.
+	measure 'Qtd NFE Eventos Consultadas' =
+			
+			CALCULATE(
+			    [Qtd NFE Eventos],
+			    FILTER(
+			        fCarteira,
+			        RELATED(dNotas[ChaveNotaFiscal]) <> BLANK()
+			    )
+			)
+		formatString: 0
+		displayFolder: Eventos\Carteira
+		lineageTag: 37321229-2322-4a79-ae04-59d3f669ea47
+
+	/// Quantidade dinâmica de NFes com eventos, ajustando-se às seleções do usuário.
+	measure 'Qtd NFE Dinâmica Eventos' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT(ISBLANK(RaizContexto)),
+			        // Modo Grupo: calcula pela raiz filtrada
+			        CALCULATE(
+			            [Qtd NFE Eventos Consultadas],
+			            REMOVEFILTERS(fCarteira[NomeCedente]),
+			            fCarteira[CnpjCedenteRaiz] = RaizContexto
+			        ),
+			        // Modo Individual: aplica filtro do emitente selecionado
+			        IF(
+			            NOT(ISBLANK(EmitenteSelecionado)),
+			            CALCULATE(
+			                [Qtd NFE Eventos Consultadas],
+			                fCarteira[NomeCedente] = EmitenteSelecionado
+			            ),
+			           [Qtd NFE Eventos Consultadas]
+			        )
+			    )
+			
+			RETURN Resultado
+			```
+		formatString: 0
+		displayFolder: Eventos\Carteira
+		lineageTag: 11367b86-836c-4099-9fd3-42403b06f37f
+
+	/// Quantidade total de eventos por chave de NFe na carteira. Intensidade de rastreamento por nota.
+	measure 'Qtd Eventos por Chave Carteira' =
+			
+			VAR ChavesCarteira = VALUES(fCarteira[ChaveNotaFiscal])
+			RETURN
+			CALCULATE(
+			    COUNTROWS(fEventos),
+			    TREATAS(
+			        ChavesCarteira,
+			        fEventos[ChaveNotaFiscal]
+			    )
+			)
+		formatString: 0
+		displayFolder: Eventos\Carteira
+		lineageTag: 5d3dec02-c22b-42a8-90f7-0a12ee9f13e2
+
+	/// Versão dinâmica da quantidade de eventos por chave, ajustando-se aos filtros.
+	measure 'Qtd Eventos por Chave Carteira Dinâmica' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT(ISBLANK(RaizContexto)),
+			        // Modo Grupo: calcula pela raiz filtrada
+			        CALCULATE(
+			            [Qtd Eventos por Chave Carteira],
+			            REMOVEFILTERS(fCarteira[NomeCedente]),
+			            fCarteira[CnpjCedenteRaiz] = RaizContexto
+			        ),
+			        // Modo Individual: aplica filtro do emitente selecionado
+			        IF(
+			            NOT(ISBLANK(EmitenteSelecionado)),
+			            CALCULATE(
+			                [Qtd Eventos por Chave Carteira],
+			                fCarteira[NomeCedente] = EmitenteSelecionado
+			            ),
+			           [Qtd Eventos por Chave Carteira]
+			        )
+			    )
+			
+			RETURN Resultado
+			```
+		formatString: 0
+		displayFolder: Eventos\Carteira
+		lineageTag: a00cb168-778c-4a79-ba87-a0a796531b41
+
+	/// Média de eventos registrados por chave de NFe na carteira. Indicador de rastreamento médio.
+	measure 'Média Eventos por Chave Carteira' =
+			
+			DIVIDE(
+			    [Qtd Eventos por Chave Carteira Dinâmica],
+			    [Qtd NFE Dinâmica Eventos],
+			    0
+			)
+		displayFolder: Eventos\Carteira
+		lineageTag: 460bebee-9ec5-45d3-9ced-9e5aa1a1c415
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Quantidade de notas na carteira cujo último evento é SEMEVT. Falta de rastreamento recente.
+	measure 'Qtd Notas Último Evento (SEMEVT)' =
+			
+			CALCULATE(
+			    DISTINCTCOUNT(fCarteira[ChaveNotaFiscal]),
+			    dNotas[UltimoCodigoEvento] = "SEMEVT"
+			)
+		formatString: 0
+		displayFolder: Eventos\Carteira
+		lineageTag: 0bf39090-354a-4e6e-9145-4a91aceccf28
+
+	/// Versão dinâmica da quantidade de notas com último evento SEMEVT.
+	measure 'Qtd Notas Último Evento SEMEVT Dinâmica' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT(ISBLANK(RaizContexto)),
+			        // Modo Grupo: calcula pela raiz filtrada
+			        CALCULATE(
+			            [Qtd Notas Último Evento (SEMEVT)],
+			            REMOVEFILTERS(fCarteira[NomeCedente]),
+			            fCarteira[CnpjCedenteRaiz] = RaizContexto
+			        ),
+			        // Modo Individual: aplica filtro do emitente selecionado
+			        IF(
+			            NOT(ISBLANK(EmitenteSelecionado)),
+			            CALCULATE(
+			                [Qtd Notas Último Evento (SEMEVT)],
+			                fCarteira[NomeCedente] = EmitenteSelecionado
+			            ),
+			           [Qtd Notas Último Evento (SEMEVT)]
+			        )
+			    )
+			
+			RETURN Resultado
+			```
+		formatString: 0
+		displayFolder: Eventos\Carteira
+		lineageTag: 7543deac-f9a2-4945-a1b1-1520e34dea0d
+
+	/// Média de notas com último evento SEMEVT. Indicador de ausência de rastreamento.
+	measure 'Média Notas Último Evento SEMEVT' =
+			
+			DIVIDE(
+			    [Qtd Notas Último Evento SEMEVT Dinâmica],
+			    [Qtd NFE Dinâmica Eventos],
+			    0
+			)
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Eventos\Carteira
+		lineageTag: f48b7499-be3c-4342-9d7f-20e281dc00f8
+
+	/// [Auxiliar] Formatação condicional para células de eventos. Destaque visual baseado em regras.
+	measure '_Formatação Condicional Evento' = ```
+			
+			IF(
+			    SELECTEDVALUE(dEventos[PreponderanciaCodigo]) = 1,
+			    1,
+			    0
+			)
+			
+			```
+		formatString: 0
+		displayFolder: _Auxiliares\Legenda e Formação
+		lineageTag: f7649c0f-f43e-419d-a29c-66a716678831
+
+	/// Quantidade de NFes que ultrapassaram o prazo de preponderância. Alerta de risco temporal.
+	measure 'Qtd NFE Preponderância Ultrapassada' = ```
+			
+			CALCULATE(
+			    [Qtd NFE Eventos Consultadas],
+			    dNotas[EventoPreponderanteFinalFlag] = 1
+			)
+			
+			```
+		formatString: 0
+		displayFolder: Eventos\Carteira
+		lineageTag: 64435fe3-1c2a-42bb-a038-668bf2797ffb
+
+	/// Valor total da carteira agrupado pelo último evento registrado. Usado para análise de status.
+	measure 'Total Carteira pelo Último Evento' = ```
+			
+			VAR RaizContexto =
+			    [_Raiz CNPJ Contexto]
+			
+			VAR TipoSelecionado =
+			    SELECTEDVALUE ( tabTipoAgrupamento[Tipo], "Individual" )
+			
+			VAR EmitenteSelecionado =
+			    SELECTEDVALUE ( tEmitente_Slicer[Emitente] )
+			
+			RETURN
+			SUMX (
+			    -- ITERA POR EVENTO (funciona para linha e total)
+			    VALUES ( dEventos[CodigoEvento] ),
+			    VAR CodigoEventoAtual =
+			        dEventos[CodigoEvento]
+			
+			    VAR FiltroCarteiraComNota =
+			        FILTER (
+			            fCarteira,
+			            NOT ISBLANK ( RELATED ( dNotas[ChaveNotaFiscal] ) )
+			                && RELATED ( dNotas[CodigoEventoEfetivo] ) = CodigoEventoAtual
+			        )
+			
+			    RETURN
+			        COALESCE (
+			            IF (
+			                TipoSelecionado = "Grupo"
+			                    && NOT ISBLANK ( RaizContexto ),
+			                CALCULATE (
+			                    SUM ( fCarteira[Valor] ),
+			                    FiltroCarteiraComNota,
+			                    fCarteira[CnpjCedenteRaiz] = RaizContexto
+			                ),
+			                IF (
+			                    NOT ISBLANK ( EmitenteSelecionado ),
+			                    CALCULATE (
+			                        SUM ( fCarteira[Valor] ),
+			                        FiltroCarteiraComNota,
+			                        fCarteira[NomeCedente] = EmitenteSelecionado
+			                    ),
+			                    CALCULATE (
+			                        SUM ( fCarteira[Valor] ),
+			                        FiltroCarteiraComNota
+			                    )
+			                )
+			            ),
+			            0
+			        )
+			)
+			
+			```
+		displayFolder: Carteira\Por Evento
+		lineageTag: 5d106665-fec2-41c9-a228-19f8d1bb33a7
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Valor total da carteira agrupado pelo tipo do último evento registrado. Análise de status atual.
+	measure 'Total Carteira por Último Evento' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			// Captura os valores da linha atual (mantém a hierarquia)
+			VAR CedenteNaLinha = SELECTEDVALUE(fCarteira[NomeCedente])
+			VAR SacadoNaLinha = SELECTEDVALUE(fCarteira[NomeSacado])  // Ajuste conforme o nome real
+			VAR ChavedaNota = SELECTEDVALUE(fCarteira[ChaveNotaFiscal])  // Ajuste conforme o nome real
+			VAR Ndocumento = SELECTEDVALUE(fCarteira[Documento])  // Ajuste conforme o nome real
+			
+			RETURN
+			CALCULATE(
+			    SUM(fCarteira[Valor]),
+			    FILTER(
+			        ALL(fCarteira[CnpjCedenteRaiz], fCarteira[NomeCedente], fCarteira[NomeSacado], fCarteira[ChaveNotaFiscal], fCarteira[Documento]),
+			
+			        // Aplica filtro de Grupo/Individual
+			        IF(
+			            NOT(ISBLANK(RaizContexto)),
+			            fCarteira[CnpjCedenteRaiz] = RaizContexto,
+			            IF(
+			                NOT(ISBLANK(EmitenteSelecionado)),
+			                fCarteira[NomeCedente] = EmitenteSelecionado,
+			                TRUE()
+			            )
+			        )
+			        &&
+			        // Mantém o filtro da linha se existir cedente
+			        IF(
+			            NOT(ISBLANK(CedenteNaLinha)),
+			            fCarteira[NomeCedente] = CedenteNaLinha,
+			            TRUE()
+			        )
+			        &&
+			        // Mantém o filtro da linha se existir sacado
+			        IF(NOT(ISBLANK(SacadoNaLinha)), 
+			            fCarteira[NomeSacado]= SacadoNaLinha, 
+			            TRUE()
+			        )
+			        &&
+			        // Mantém o filtro da linha se existir nota
+			        IF(NOT(ISBLANK(ChavedaNota)), 
+			            fCarteira[ChaveNotaFiscal]= ChavedaNota, 
+			            TRUE()
+			        )
+			        &&
+			        // Mantém o filtro da linha se existir documento
+			        IF(NOT(ISBLANK(Ndocumento)), 
+			            fCarteira[Documento]= Ndocumento, 
+			            TRUE()
+			        )
+			    )
+			)
+			```
+		displayFolder: Eventos\Carteira
+		lineageTag: 249b31eb-102b-482e-82a3-95ba9f9f4a5f
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// [Auxiliar] Formatação condicional para status de pendência. Alerta visual de itens pendentes.
+	measure '_Formatação Condicional Pendência' = ```
+			
+			VAR _descricao = SELECTEDVALUE(dEventos[EventoPendentes])
+			return 
+			SWITCH(
+			    TRUE(),
+			    _descricao = "Confirmação (encerrado)", 0,
+			    _descricao = "Positivo Avaliar", 1,
+			    _descricao = "Negativo Avaliar", 2,
+			    _descricao = "Negativo Crítico", 3,   
+			    0
+			)
+			
+			```
+		formatString: 0
+		displayFolder: _Auxiliares\Legenda e Formação
+		lineageTag: b308e12f-d3b4-445f-83b0-f0652181c291
+
+	/// Medida de teste para validar cálculos de carteira por evento. Uso interno/desenvolvimento.
+	measure 'Teste Total Carteira por Último Evento' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR FiltroNotas = 
+			    FILTER(
+			        fCarteira,
+			        RELATED(dNotas[ChaveNotaFiscal]) <> BLANK()
+			    )
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT(ISBLANK(RaizContexto)),
+			        // Modo Grupo: filtra pela raiz
+			        CALCULATE(
+			            SUM(fCarteira[Valor]),
+			            FILTER(
+			                FiltroNotas,
+			                fCarteira[CnpjCedenteRaiz] = RaizContexto
+			            )
+			        ),
+			        // Modo Individual: aplica filtro do emitente selecionado
+			        IF(
+			            NOT(ISBLANK(EmitenteSelecionado)),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FILTER(
+			                    FiltroNotas,
+			                    fCarteira[NomeCedente] = EmitenteSelecionado
+			                )
+			            ),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FiltroNotas
+			            )
+			        )
+			    )
+			
+			RETURN IF( Resultado = 0, BLANK(), Resultado )
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Eventos\Carteira
+		lineageTag: ba0dd49c-f843-4f24-ade3-207d7c6db82b
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// [Auxiliar] Formatação condicional baseada no nível de pendência. Escala de prioridade visual.
+	measure '_Formatação Condicional Nível Pendência' = ```
+			
+			VAR _descricao = SELECTEDVALUE(dEventos[EventoPendentes])
+			return 
+			SWITCH(
+			    TRUE(),
+			    _descricao = "Confirmação (encerrado)", 0,
+			    _descricao = "Positivo Avaliar", 1,
+			    _descricao = "Negativo Avaliar", 2,
+			    _descricao = "Negativo Crítico", 3,   
+			    0
+			)
+			
+			```
+		formatString: 0
+		displayFolder: _Auxiliares\Legenda e Formação
+		lineageTag: f83efdfe-b65d-4373-8035-583d047597d1
+
+	/// [Auxiliar] Cor aplicada a eventos positivos/negativos. Elemento visual de diferenciação.
+	measure '_Cor Evento Positivo/Negativo' = ```
+			
+			SWITCH(
+			    SELECTEDVALUE(dEventos[EventoPosNeg]),
+			    "Negativos", "#D64550",
+			    "Positivos", "#5D8161",
+			    BLANK()
+			)
+			
+			```
+		displayFolder: _Auxiliares\Legenda e Formação
+		lineageTag: b8dba5d7-cfa0-4387-9ffb-f2c68f4bd76b
+
+	/// Valor total da carteira formatado para gráfico de rosca/pizza. Visualização específica.
+	measure 'Total Carteira (Rosca)' = ```
+			
+			VAR Evento = SELECTEDVALUE(dEventos[EventoPendentes])
+			RETURN
+			IF(
+			    Evento = "Confirmação (encerrado)",
+			    BLANK(),
+			    [Teste Total Carteira por Último Evento]
+			)
+			
+			```
+		displayFolder: Eventos\Carteira
+		lineageTag: bc6b06ee-bf5f-4c83-bdaa-f57aa12271f2
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	/// Valor total da carteira excluindo eventos de confirmação. Análise de eventos pendentes.
+	measure 'Total Carteira Sem Confirmação' = ```
+			
+			CALCULATE(
+			    [Teste Total Carteira por Último Evento],
+			    dEventos[EventoPendentes] <> "Confirmação (encerrado)"
+			)
+			
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Eventos\Carteira
+		lineageTag: 1b2370ae-474c-43f4-9ea7-c59d4144381b
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	/// Percentual de eventos classificados como positivos versus negativos. KPI de qualidade de rastreamento.
+	measure '% Evento Positivo/Negativo' =
+			
+			DIVIDE(
+			    [Teste Total Carteira por Último Evento],
+			    CALCULATE(
+			        [Teste Total Carteira por Último Evento],
+			        ALL(dEventos[EventoPosNeg])
+			    )
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Eventos\Carteira
+		lineageTag: fcdae23f-a0c0-4a32-951b-dcaf4daba8da
+
+	/// Percentual do código de evento 210200 dentro dos eventos positivos. Métrica específica de tipo de evento.
+	measure '% Código 210200 dentro do Positivo' = ```
+			
+			VAR TotalPositivo =
+			    CALCULATE(
+			        [Teste Total Carteira por Último Evento],
+			        REMOVEFILTERS(dEventos[CodigoEvento])
+			    )
+			
+			VAR Total210200 =
+			    CALCULATE(
+			        [Teste Total Carteira por Último Evento],
+			        dEventos[CodigoEvento] = "210200"
+			    )
+			
+			RETURN
+			DIVIDE(Total210200, TotalPositivo)
+			
+			```
+		formatString: 0%;-0%;0%
+		displayFolder: Eventos\Carteira
+		lineageTag: 5e1bc95e-fc63-4d46-a1b4-7999f51fdd53
+
+	/// [Auxiliar] Formatação da descrição de eventos pendentes. Destaque textual.
+	measure '_Formatação Descrição Evento Pendente' =
+			
+			VAR Evento = SELECTEDVALUE(dEventos[EventoPendentes])
+			RETURN UPPER(Evento)
+		displayFolder: _Auxiliares\Legenda e Formação
+		lineageTag: 68ec6cb3-9da4-4500-8ba5-f5aff659035c
+
+	/// Data da carga de dados mais recente no sistema. Controle de atualização.
+	measure 'Data Carga Mais Recente' =
+			
+			MAX ( fCarteira[DataCarga] )
+		formatString: General Date
+		displayFolder: Eventos\Controle
+		lineageTag: 8b167179-af94-45f7-a1da-9c4724a3cd71
+
+	/// Sinalizador indicando se a data de carga é atual/recente. Validador de atualização.
+	measure 'Flag Data Carga Atual' = ```
+			
+			VAR DataMax = [Data Carga Mais Recente]
+			RETURN
+			IF (
+			    SELECTEDVALUE ( _dDataCarga[DataCarga] ) = DataMax,
+			    1,
+			    0
+			)
+			
+			```
+		formatString: 0
+		displayFolder: Eventos\Controle
+		lineageTag: 2173077e-834a-4663-870a-246c4f9b4464
+
+	measure 'Sem Checagem ou Sem Canhoto' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR FiltroBase =
+			    FILTER(
+			        fCarteira,
+			        fCarteira[checagem] = "N" || fCarteira[canhoto] = "N"
+			    )
+			
+			VAR Resultado =
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT ISBLANK(RaizContexto),
+			        CALCULATE(
+			            SUM(fCarteira[Valor]),
+			            FILTER(
+			                FiltroBase,
+			                fCarteira[CnpjCedenteRaiz] = RaizContexto
+			            )
+			        ),
+			        IF(
+			            NOT ISBLANK(EmitenteSelecionado),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FILTER(
+			                    FiltroBase,
+			                    fCarteira[NomeCedente] = EmitenteSelecionado
+			                )
+			            ),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FiltroBase
+			            )
+			        )
+			    )
+			
+			RETURN
+			    COALESCE(Resultado, 0)
+			
+			```
+		displayFolder: Carteira\Análise Temporal
+		lineageTag: 98bea758-ec32-4ff9-b6e4-e21fcd1a4bb4
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '% Sem Checagem Ou Sem Canhoto' = DIVIDE([Sem Checagem ou Sem Canhoto], [Total da Carteira])
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Carteira\Percentuais
+		lineageTag: 53299d41-cb5c-4b23-907c-41332b8c57a4
+
+	measure '% Variação Carteira vs Data Anterior' = ```
+			
+			VAR DataAtual =
+			    MAX ( _dDataCarga[DataCarga] )
+			
+			VAR DataAnterior =
+			    CALCULATE (
+			        MAX ( fCarteira[DataCarga] ),
+			        FILTER (
+			            ALL ( fCarteira ),
+			            fCarteira[DataCarga] < DataAtual
+			        )
+			    )
+			
+			VAR ValorAtual =
+			    [Total Dinâmico]
+			
+			VAR ValorAnterior =
+			    CALCULATE (
+			        [Total Dinâmico],
+			        REMOVEFILTERS ( _dDataCarga[DataCarga] ),
+			        TREATAS ( { DataAnterior }, fCarteira[DataCarga] )
+			    )
+			
+			
+			RETURN DIVIDE ( ValorAtual - ValorAnterior, ValorAnterior )
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Carteira\Percentuais
+		lineageTag: cb7c5b71-7177-4f01-ad66-cb26b3a830ca
+
+	measure 'KPI Variação Carteira' = ```
+			
+			VAR ValorPct = [% Variação Carteira vs Data Anterior]
+			VAR Sinal =
+			    SWITCH(
+			        TRUE(),
+			        ISBLANK(ValorPct), BLANK(),
+			        ValorPct > 0, "▲ ",
+			        ValorPct < 0, "▼ ",
+			        "▬ "
+			    )
+			RETURN
+			    IF(
+			        ISBLANK(ValorPct),
+			        "0.0%",
+			        Sinal & FORMAT(ValorPct, "0.0%") //& " vs anterior"
+			    )
+			
+			```
+		displayFolder: Carteira\Análise Temporal
+		lineageTag: 9470feaa-1b87-4ba7-b483-1d75abe09a1e
+
+	measure 'KPI Variação Carteira Cor' = ```
+			
+			VAR ValorPct = [% Variação Carteira vs Data Anterior]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        ISBLANK(ValorPct), "#808080",
+			        ValorPct > 0, "#44D655",   -- verde
+			        ValorPct < 0, "#D64550",   -- vermelho
+			        "#808080"
+			    )
+			
+			```
+		displayFolder: Carteira\Análise Temporal
+		lineageTag: a21e0f52-4f2e-4fb5-9501-b83f31890d78
+
+	measure '% Variação Carteira Consultada vs Data Anterior' =
+			
+			VAR DataAtual =
+			    MAX ( _dDataCarga[DataCarga] )
+			
+			VAR DataAnterior =
+			    CALCULATE (
+			        MAX ( fCarteira[DataCarga] ),
+			        FILTER (
+			            ALL ( fCarteira ),
+			            fCarteira[DataCarga] < DataAtual
+			        )
+			    )
+			
+			VAR ValorAtual =
+			    [Total Carteira Notas Consultadas]
+			
+			VAR ValorAnterior =
+			    CALCULATE (
+			        [Total Carteira Notas Consultadas],
+			        REMOVEFILTERS ( _dDataCarga[DataCarga] ),
+			        TREATAS ( { DataAnterior }, fCarteira[DataCarga] )
+			    )
+			
+			
+			RETURN DIVIDE ( ValorAtual - ValorAnterior, ValorAnterior )
+		displayFolder: Carteira\Percentuais
+		lineageTag: 261fc719-cf99-406a-9186-cc338dea0465
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'KPI Variação Carteira Consultada' = ```
+			
+			VAR ValorPct = [% Variação Carteira Consultada vs Data Anterior]
+			VAR Sinal =
+			    SWITCH(
+			        TRUE(),
+			        ISBLANK(ValorPct), BLANK(),
+			        ValorPct > 0, "▲ ",
+			        ValorPct < 0, "▼ ",
+			        "▬ "
+			    )
+			RETURN
+			    IF(
+			        ISBLANK(ValorPct),
+			        "0.0%",
+			        Sinal & FORMAT(ValorPct, "0.0%") //& " vs anterior"
+			    )
+			
+			```
+		displayFolder: Carteira\Análise Temporal
+		lineageTag: 193f575d-a51c-4408-82ab-eefc052dd853
+
+	measure 'KPI Variação Carteira Consultada Cor' = ```
+			
+			VAR ValorPct = [% Variação Carteira Consultada vs Data Anterior]
+			RETURN
+			    SWITCH(
+			        TRUE(),
+			        ISBLANK(ValorPct), "#808080",
+			        ValorPct > 0, "#44D655",   -- verde
+			        ValorPct < 0, "#D64550",   -- vermelho
+			        "#808080"
+			    )
+			
+			```
+		displayFolder: Carteira\Análise Temporal
+		lineageTag: f1ef70bb-326f-426a-9c69-f1eb8e9351f7
+
+	measure 'Total Carteira Notas Consultadas com decimais' = ```
+			
+			VAR RaizContexto = [_Raiz CNPJ Contexto]
+			VAR TipoSelecionado = SELECTEDVALUE(tabTipoAgrupamento[Tipo], "Individual")
+			VAR EmitenteSelecionado = SELECTEDVALUE(tEmitente_Slicer[Emitente])
+			
+			VAR FiltroNotas = 
+			    FILTER(
+			        fCarteira,
+			        NOT ISBLANK(RELATED(dNotas[ChaveNotaFiscal]))
+			    )
+			
+			VAR Resultado = 
+			    IF(
+			        TipoSelecionado = "Grupo" && NOT ISBLANK(RaizContexto),
+			        CALCULATE(
+			            SUM(fCarteira[Valor]),
+			            FILTER(
+			                FiltroNotas,
+			                fCarteira[CnpjCedenteRaiz] = RaizContexto
+			            )
+			        ),
+			        IF(
+			            NOT ISBLANK(EmitenteSelecionado),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FILTER(
+			                    FiltroNotas,
+			                    fCarteira[NomeCedente] = EmitenteSelecionado
+			                )
+			            ),
+			            CALCULATE(
+			                SUM(fCarteira[Valor]),
+			                FiltroNotas
+			            )
+			        )
+			    )
+			
+			RETURN COALESCE(Resultado, 0)
+			```
+		formatString: "R$"\ #,0.00;-"R$"\ #,0.00;"R$"\ #,0.00
+		displayFolder: Carteira\Valores Totais
+		lineageTag: a408fbf2-7fe5-4154-8e50-be274540763d
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 'Qtd Notas' = [Qtd Total de Notas no Período]
+		formatString: 0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 2b68a340-6716-4314-bbcb-016eea39a8ee
+
+	measure 'Ultrapassagem Evento Preponderante' = ```
+			
+			CALCULATE(
+			    DISTINCTCOUNT(dNotas[chavenotafiscal]),
+			    dNotas[UltrapassagemEventoPreponderanteFlag] = 1
+			)
+			
+			```
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: e7deecc1-61c7-49a8-b1f6-07294f1d740a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Ultrapassagem Evento Preponderante Icon' = ```
+			
+			IF(
+			    NOT ISINSCOPE(dNotas[NomeFantasiaEmitente]),
+			    BLANK(),
+			    IF([Ultrapassagem Evento Preponderante] > 0, 1, 0)
+			)
+			
+			```
+		formatString: 0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 2aaab80f-0277-4242-8541-0338483dc942
+
+	measure 'Filtro Ultrapassagem Apply' = ```
+			
+			VAR Sel = SELECTEDVALUE('Filtro Ultrapassagem'[Filtro], "Todos")
+			VAR Qtde =
+			    CALCULATE(
+			        COUNTROWS(dNotas),
+			        dNotas[UltrapassagemEventoPreponderanteFlag] = 1
+			    )
+			RETURN
+			IF(
+			    Sel = "Todos" ||
+			    (Sel = "Sim" && Qtde > 0) ||
+			    (Sel = "Não" && Qtde = 0),
+			    1,
+			    0
+			)
+			
+			```
+		formatString: 0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 3e3ace06-1849-4e91-bc36-89d595f1bfde
+
+	measure IVP = ```
+			
+			VAR DocsNoPeriodo =
+			    FILTER(
+			        fDocumentos,
+			        fDocumentos[DataConsulta] >= MIN(dCalendario[Data]) &&
+			        fDocumentos[DataConsulta] <= MAX(dCalendario[Data])
+			    )
+			VAR ConsultasAntesVencimento =
+			    COUNTROWS(
+			        FILTER(
+			            DocsNoPeriodo,
+			            RELATED(dNotas[PrimeiraDataConsulta]) > fDocumentos[DataVencimento]
+			        )
+			    )
+			VAR TotalConsultas =
+			    COUNTROWS(DocsNoPeriodo)
+			RETURN
+			DIVIDE(ConsultasAntesVencimento, TotalConsultas)
+			
+			```
+		formatString: 0.0%;-0.0%;0.0%
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: e2269a3d-bad0-40b8-a305-32ae25264d53
+
+	measure Intensidade_Monitoramento =
+			
+			VAR MinData = MIN(dCalendario[Data])
+			VAR MaxData = MAX(dCalendario[Data])
+			RETURN
+			DIVIDE(
+			    CALCULATE(
+			        COUNTROWS(fDocumentos),
+			        fDocumentos[DataConsulta] >= MinData &&
+			        fDocumentos[DataConsulta] <= MaxData
+			    ),
+			    CALCULATE(
+			        DISTINCTCOUNT(fDocumentos[ChaveNotaFiscal]),
+			        fDocumentos[DataConsulta] >= MinData &&
+			        fDocumentos[DataConsulta] <= MaxData
+			    )
+			)
+			
+			// Segmentar por:
+			
+			// Valor da nota (notas maiores são mais consultadas?)
+			// Dias até vencimento
+			// Emitente (alguns fornecedores geram mais dúvidas?)
+			
+			
+			// Benchmark: Média de 1.0 = 1 consulta por nota. Acima = monitoramento intenso
+		formatString: 0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 78c5ead4-5f7a-49bf-a717-ceb937f6cab2
+
+	measure 'Ultima Data da Consulta' = ```
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			RETURN
+			IF(
+			    ISINSCOPE(dNotas[NomeFantasiaEmitente]),
+			    CALCULATE(
+			        MAX(dNotas[UltimaDataConsulta]),
+			        FILTER(
+			            dNotas,            
+			            (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			        )
+			    ),
+			    BLANK()
+			)
+			```
+		formatString: Short Date
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: ff1dace0-2191-44fa-a02b-77f6e1917db6
+
+	measure 'Qtd Emitentes' = ```
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			RETURN
+			    CALCULATE(
+			                DISTINCTCOUNT(dNotas[NomeFantasiaEmitente]),
+			        FILTER(
+			            dNotas,
+			            (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada) ||
+			            (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			        )
+			    )
+			
+			```
+		formatString: 0
+		displayFolder: Notas Fiscais\Análise Geográfica
+		lineageTag: 314afc4b-bd36-4b1f-b5ba-417d9db0be60
+
+	measure 'Qtd Notas por Emitente' = ```
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			RETURN
+			    CALCULATE(        
+			        DISTINCTCOUNT(dNotas[ChaveNotaFiscal]),
+			        FILTER(
+			            dNotas,
+			            (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada) ||
+			            (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			        )
+			    )
+			```
+		formatString: 0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: d7d6effe-6fb3-4cae-b74e-55303d54545c
+
+	measure 'Is Outlier' = ```
+			
+			VAR RankEmitente =
+			    RANKX(
+			        ALLSELECTED(dNotas[NomeFantasiaEmitenteTruncado]),
+			        [Qtd Notas por Emitente],
+			        ,
+			        DESC,
+			        DENSE
+			    )
+			RETURN IF(RankEmitente <= 2, 1, 0)
+			
+			```
+		formatString: 0
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 3c50c0ed-289f-4ef4-9b73-8fed94bfd7c6
+
+	measure '% Total Geral' =
+			
+			DIVIDE(
+			    [Total de Consultas Realizadas],
+			    CALCULATE(
+			        [Total de Consultas Realizadas],
+			        ALL(dNotas[NomeFantasiaEmitente]),
+			        ALL(dNotas[ChaveNotaFiscal]),
+			        ALL(dNotas[NumeroNotaFiscal])
+			    )
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: a5fc22f2-deb6-4f64-a579-9cdd810f31a8
+
+	measure 'Ticket Médio' =
+			
+			DIVIDE(
+			    [Total de Consultas Realizadas],
+			    DISTINCTCOUNT(fDocumentos[ChaveNotaFiscal])  -- ou o campo que identifica cada venda/consulta
+			)
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: b8fb8952-d441-4852-9e3e-17d655149ba0
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure '% Total Geral Faturamento' =
+			
+			DIVIDE(
+			    [Total de Consultas Realizadas],
+			    CALCULATE(
+			        [Total de Consultas Realizadas],
+			        ALL(dNotas[NomeDestinatario]),
+			        ALL(dNotas[ChaveNotaFiscal]),
+			        ALL(dNotas[NumeroNotaFiscal])
+			    )
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: 50e29447-1488-4289-b5b1-d9fe0ac7023c
+
+	measure 'Qtd Emitentes por Destinatário' =
+			
+			DISTINCTCOUNT(dNotas[NomeFantasiaEmitente])
+		formatString: 0
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: 9fc7c383-d8dc-43e7-96f8-2dc114bc69e0
+
+	measure 'Vendas do Emitente dentro do Estado' =
+			
+			COALESCE(
+			    CALCULATE(
+			        [Total de Consultas Realizadas],
+			        dNotas[UfEmitente] = dNotas[UfDestinatario]
+			    ), 0
+			)
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: 5af00a92-884c-4a76-8f20-81b432164d7f
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 'Vendas do Emitente Fora do Estado' =
+			
+			COALESCE(
+			    CALCULATE(
+			        [Total de Consultas Realizadas],
+			        dNotas[UfEmitente] <> dNotas[UfDestinatario]
+			    ), 0
+			)
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: 1e2255a2-2241-44da-b62a-f62b1b023f18
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 'Ranking Dinâmico Top 5' = ```
+			
+			VAR Tipo =
+			    SELECTEDVALUE('Parâmetro Eixo'[Parâmetro Eixo Pedido])
+			
+			RETURN
+			SWITCH(
+			    Tipo,
+			
+			    0,  -- UF
+			        RANKX(
+			            ALL(dNotas[UFDestinatario]),
+			            [% do Total Geral N],
+			            ,
+			            DESC,
+			            DENSE
+			        ),
+			
+			    1,  -- Transportadora
+			        RANKX(
+			            FILTER(
+			                ALL(dNotas[NomeTransportador]),
+			                NOT ISBLANK(dNotas[NomeTransportador]) && TRIM(dNotas[NomeTransportador]) <> ""
+			            ),
+			            [% do Total Geral N],
+			            ,
+			            DESC,
+			            DENSE
+			        )
+			)
+			
+			```
+		formatString: 0
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: 6b63d78c-813b-47ee-8fb8-2b6414ef6eb1
+
+	measure 'Exibir Top 5' = ```
+			
+			VAR Tipo =
+			    SELECTEDVALUE('Parâmetro Eixo'[Parâmetro Eixo Pedido])
+			
+			RETURN
+			SWITCH(
+			    Tipo,
+			
+			    0,
+			        IF([Ranking Dinâmico Top 5] <= 5, 1, 0),
+			
+			    1,
+			        IF(
+			            NOT ISBLANK(SELECTEDVALUE(dNotas[NomeTransportador]))
+			                && TRIM(SELECTEDVALUE(dNotas[NomeTransportador])) <> ""
+			                && [Ranking Dinâmico Top 5] <= 5,
+			            1,
+			            0
+			        )
+			)
+			
+			```
+		formatString: 0
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: 12832018-09b9-423a-9497-7d22cbbe60ff
+
+	measure '% do Total Geral N' = ```
+			
+			DIVIDE(
+			    [Total de Consultas Realizadas],
+			    CALCULATE(
+			        [Total de Consultas Realizadas],
+			        ALL(dNotas)
+			    )
+			)
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: ef54ffce-608b-4c3f-9732-868d718bac71
+
+	measure 'Vendas do Emitente dentro do Municipio' =
+			
+			COALESCE(
+			    CALCULATE(
+			        [Total de Consultas Realizadas],
+			        dNotas[MunicipioEmitente] = dNotas[MunicipioDestinatario]
+			    ), 0
+			)
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: bf74e79b-d39a-458b-bb7d-98e7470b4292
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Vendas do Emitente Fora do Municipio' =
+			
+			COALESCE(
+			    CALCULATE(
+			        [Total de Consultas Realizadas],
+			        dNotas[MunicipioEmitente] <> dNotas[MunicipioDestinatario]
+			    ), 0
+			)
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: a9a59d0b-30f0-42d0-8648-6383ddc51aa0
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Prazo Médio (dias)' = ```
+			
+			AVERAGEX(
+			    fDocumentos,
+			    fDocumentos[dataVencimento]
+			        - RELATED(dNotas[dataEmissao])
+			)
+			
+			```
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: f5960f21-8067-4964-a02a-54dd5b58cbab
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Prazo Médio por Nota (dias)' = ```
+			
+			AVERAGEX(
+			    VALUES(dNotas[ChaveNotaFiscal]),
+			    CALCULATE(
+			        AVERAGEX(
+			            fDocumentos,
+			            fDocumentos[dataVencimento]
+			                - RELATED(dNotas[dataEmissao])
+			        )
+			    )
+			)
+			
+			```
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: 9d98f790-5312-485b-ba93-23d1724f8959
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Qtd de Titulos' = COUNTROWS(fDocumentos)
+		formatString: 0
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: 9fd5bb66-846f-4dbb-a5b7-590cf4bffd40
+
+	measure 'Média de Titulos' = DIVIDE([Qtd de Titulos], [Qtd Notas])
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: fd489255-2445-4297-8294-9c19cdcbbcc4
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total de Faturamento' = ```
+			
+			
+			VAR v = [Total de Consultas Realizadas]
+			RETURN
+			SWITCH(
+			    TRUE(),
+			
+			    ABS(v) >= 1000000000,
+			        "R$ " & FORMAT(v/1000000000, "#,##0.###") & "B",
+			
+			    ABS(v) >= 1000000,
+			        "R$ " & FORMAT(v/1000000, "#,##0.###") & "M",
+			
+			    ABS(v) >= 1000,
+			        "R$ " & FORMAT(v/1000, "#,##0.###") & "k",
+			
+			    "R$ " & FORMAT(v, "#,##0")
+			)
+			
+			
+			```
+		displayFolder: Notas Fiscais\Faturamento
+		lineageTag: e771adbe-3402-49a9-9cce-2df704f3e2d9
+
+	measure 'Preponderancia Icone' = ```
+			
+			VAR v =
+			    SELECTEDVALUE(dEventos[preponderanciaCodigo])
+			RETURN
+			IF(
+			    ISINSCOPE(dEventos[DescricaoEvento]) &&
+			    v = 1,
+			    1,
+			    BLANK()
+			)
+			
+			```
+		formatString: 0
+		displayFolder: Eventos\Preponderância
+		lineageTag: abdaf9fe-3bb9-4502-8c09-3f6040d5225f
+
+	measure '_Filtro Preponderancia Apply' =
+			
+			VAR Sel = SELECTEDVALUE('Filtro Ultrapassagem'[Filtro], "Todos")
+			VAR Qtde =
+			    CALCULATE(
+			        COUNTROWS(dEventos),
+			        dEventos[PreponderanciaCodigo] = 1
+			    )
+			RETURN
+			IF(
+			    Sel = "Todos" ||
+			    (Sel = "Sim" && Qtde > 0) ||
+			    (Sel = "Não" && Qtde = 0),
+			    1,
+			    0
+			)
+		formatString: 0
+		displayFolder: _Auxiliares\Contexto e Filtros
+		lineageTag: 1e565b76-326b-4e50-a3ea-7f21c61089f4
+
+	measure 'Texto Ultima data da consulta' = ```
+			
+			CONCATENATE(
+			    "Última data de consulta: ", 
+			    MAX(dNotas[UltimaDataConsulta]
+			))
+			```
+		displayFolder: Notas Fiscais\Consultas
+		lineageTag: 552057a7-1060-452b-bcb7-73e6b9e42689
+
+	measure 'Tempo Médio de Confirmação' = ```
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			
+			VAR _NotasComEventoPreponderante = 
+			    FILTER(
+			        dNotas,
+			        NOT(ISBLANK(dNotas[UltimoEvento])) &&
+			        NOT(ISBLANK(dNotas[DataEmissao])) &&
+			        NOT(ISBLANK(dNotas[UltimaDataConsulta])) &&
+			        (
+			            (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada) ||
+			            (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			        )
+			    )
+			
+			VAR _NotasValidas = 
+			    FILTER(
+			        _NotasComEventoPreponderante,
+			        RELATED(dEventos[PreponderanciaCodigo]) = 1
+			    )
+			
+			VAR _TotalDias = 
+			    SUMX(
+			        _NotasValidas,
+			        DATEDIFF(
+			            dNotas[DataEmissao],
+			            dNotas[UltimaDataConsulta],
+			            DAY
+			        )
+			    )
+			
+			VAR _Quantidade = 
+			    COUNTROWS(_NotasValidas)
+			
+			VAR _MediaDias = 
+			    DIVIDE(_TotalDias, _Quantidade, BLANK())
+			
+			RETURN
+			    _MediaDias
+			```
+		displayFolder: Eventos\Análise
+		lineageTag: 46aa125e-7e4c-49f3-b300-0abefd386854
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Média Eventos por Nota Tempo' = ```
+			
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			
+			VAR _totalEventos = 
+			    CALCULATE(
+			        COUNTROWS(fEventos),
+			        FILTER(
+			            fEventos,            
+			            (RELATED(dNotas[PrimeiraDataConsulta]) >= MinDataFiltrada && RELATED(dNotas[PrimeiraDataConsulta]) <= MaxDataFiltrada) ||
+			            (RELATED(dNotas[UltimaDataConsulta]) >= MinDataFiltrada && RELATED(dNotas[UltimaDataConsulta]) <= MaxDataFiltrada)
+			        )
+			    )
+			
+			VAR _notasNoTempo = 
+			    CALCULATE(
+			        DISTINCTCOUNT(fEventos[ChaveNotaFiscal]),
+			        FILTER(
+			            fEventos,
+			            (RELATED(dNotas[PrimeiraDataConsulta]) >= MinDataFiltrada && 
+			             RELATED(dNotas[PrimeiraDataConsulta]) <= MaxDataFiltrada) ||
+			            (RELATED(dNotas[UltimaDataConsulta]) >= MinDataFiltrada && 
+			             RELATED(dNotas[UltimaDataConsulta]) <= MaxDataFiltrada)
+			        )
+			    )
+			
+			RETURN
+			    ROUND(
+			        DIVIDE(
+			            _totalEventos,
+			            _notasNoTempo,
+			            0
+			        ),
+			        2
+			    )
+			```
+		displayFolder: Eventos\Análise
+		lineageTag: 986cbfac-8b59-421b-bf2a-bf5ad6b64f4a
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Consultas por Último Evento' = ```
+			
+			VAR FiltroNotas = 
+			    FILTER(
+			        fDocumentos,
+			        RELATED(dNotas[ChaveNotaFiscal]) <> BLANK()
+			    )
+			RETURN          
+			CALCULATE(
+			        SUM(fDocumentos[ValorDuplicata]),
+			        FiltroNotas
+			    )
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Eventos\Valores
+		lineageTag: 5c98cc64-33b4-4035-9cc7-df0ab9e93ca5
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure 'Total Consulta (Rosca)' =
+			
+			VAR Evento = SELECTEDVALUE(dEventos[EventoPendentes])
+			RETURN
+			IF(
+			    Evento = "Confirmação (encerrado)",
+			    BLANK(),
+			    [Total Consultas por Último Evento])
+		displayFolder: Eventos\Valores
+		lineageTag: 64f1ff48-a0f6-4cf9-b6c6-a3b26ca5de2c
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure 'Total Consultas Sem Confirmação' = ```
+			
+			CALCULATE(
+			    [Total Consultas por Último Evento],
+			    dEventos[EventoPendentes] <> "Confirmação (encerrado)"
+			)
+			
+			```
+		formatString: "R$"\ #,0;-"R$"\ #,0;"R$"\ #,0
+		displayFolder: Eventos\Valores
+		lineageTag: 1d434343-ec0b-4408-9f81-8f15b3349e1e
+
+		annotation PBI_FormatHint = {"currencyCulture":"pt-BR"}
+
+	measure '% Consultas Evento Positivo/Negativo' =
+			
+			DIVIDE(
+			    [Total Consultas por Último Evento],
+			    CALCULATE(
+			        [Total Consultas por Último Evento],
+			        ALL(dEventos[EventoPosNeg])
+			    )
+			)
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Eventos\Análise
+		lineageTag: de75ab4a-f5bd-4512-b091-e934df017359
+
+	measure 'Total a Avaliar Notas Existentes Eventos' = ```
+			
+			VAR FiltroAvaliar = 
+			    FILTER(
+			        fDocumentos,
+			        NOT ISBLANK(RELATED(dNotas[ChaveNotaFiscal])) 
+			        && RELATED(dNotas[CriticidadeEvento]) = "AVALIAR"
+			    )
+			VAR Resultado = 
+			    CALCULATE(
+			        SUM(fDocumentos[ValorDuplicata]),
+			        FiltroAvaliar
+			    )
+			RETURN COALESCE(Resultado, 0)
+			```
+		displayFolder: Eventos\Valores
+		lineageTag: 0da1e8ae-4324-4185-ba6c-6cf25d6fd0a4
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '% Criticidade a Avaliar Eventos' = ```
+			
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			
+			RETURN
+			    CALCULATE(
+			        DIVIDE([Total a Avaliar Notas Existentes Eventos], [Total Consultas por Último Evento]),
+			        FILTER(
+			            dNotas,
+			            (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada) ||
+			            (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			        )
+			    )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Eventos\Percentuais
+		lineageTag: e316f8d6-28ee-4232-803a-082a49de3dbd
+
+	measure 'Total Críticos Notas Existentes Eventos' = ```
+			
+			VAR FiltroAvaliar = 
+			    FILTER(
+			        fDocumentos,
+			        NOT ISBLANK(RELATED(dNotas[ChaveNotaFiscal])) 
+			        && RELATED(dNotas[CriticidadeEvento]) = "CRÍTICO"
+			    )
+			VAR Resultado = 
+			    CALCULATE(
+			        SUM(fDocumentos[ValorDuplicata]),
+			        FiltroAvaliar
+			    )
+			RETURN COALESCE(Resultado, 0)
+			```
+		displayFolder: Eventos\Valores
+		lineageTag: 8414af35-8ddb-4edf-a9fd-b4ea668eda6b
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '% Criticidade a Críticos Eventos' = ```
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			
+			RETURN
+			    CALCULATE(
+			        DIVIDE([Total Críticos Notas Existentes Eventos], [Total Consultas por Último Evento]),
+			        FILTER(
+			            dNotas,
+			            (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada) ||
+			            (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			        )
+			    )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Eventos\Percentuais
+		lineageTag: f8d0878d-97fc-4706-b642-c561ff200474
+
+	measure 'Total Sem Risco Notas Existentes Eventos' = ```
+			
+			VAR FiltroAvaliar = 
+			    FILTER(
+			        fDocumentos,
+			        NOT ISBLANK(RELATED(dNotas[ChaveNotaFiscal])) 
+			        && RELATED(dNotas[CriticidadeEvento]) = "SEM RISCO"
+			    )
+			VAR Resultado = 
+			    CALCULATE(
+			        SUM(fDocumentos[ValorDuplicata]),
+			        FiltroAvaliar
+			    )
+			RETURN COALESCE(Resultado, 0)
+			```
+		displayFolder: Eventos\Valores
+		lineageTag: 3002dd87-578e-48e6-b923-ef4911bd2820
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	measure '% Criticidade Sem Risco Eventos' = ```
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			
+			RETURN
+			    CALCULATE(
+			        DIVIDE([Total Sem Risco Notas Existentes Eventos], [Total Consultas por Último Evento]),
+			        FILTER(
+			            dNotas,
+			            (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada) ||
+			            (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			        )
+			    )
+			
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Eventos\Percentuais
+		lineageTag: e20b5a89-9410-46c0-aaf3-f43281ae4480
+
+	measure '% Notas (SEMEVT)' = ```
+			
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			
+			VAR _notasSemEvento = 
+			    CALCULATE(
+			        DISTINCTCOUNT(dNotas[ChaveNotaFiscal]),
+			        dNotas[UltimoCodigoEvento] = "SEMEVT",
+			        FILTER(
+			            dNotas,
+			            (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada) ||
+			            (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			        )
+			    )
+			
+			VAR _totalNotas = 
+			    CALCULATE(
+			        DISTINCTCOUNT(dNotas[ChaveNotaFiscal]),
+			        FILTER(
+			            dNotas,
+			            (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada) ||
+			            (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			        )
+			    )
+			
+			RETURN
+			    DIVIDE(_notasSemEvento, _totalNotas, 0)
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Eventos\Percentuais
+		lineageTag: c99fde69-bf11-49e6-b249-a04800276286
+
+	measure '% de MDF-e Autorizado com CT-e' = ```
+			
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			
+			VAR _notasSemEvento = 
+			    CALCULATE(
+			        DISTINCTCOUNT(dNotas[ChaveNotaFiscal]),
+			        dNotas[UltimoCodigoEvento] = "610614",
+			        FILTER(
+			            dNotas,
+			            (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada) ||
+			            (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			        )
+			    )
+			
+			VAR _totalNotas = 
+			    CALCULATE(
+			        DISTINCTCOUNT(dNotas[ChaveNotaFiscal]),
+			        FILTER(
+			            dNotas,
+			            (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada) ||
+			            (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			        )
+			    )
+			
+			RETURN
+			    DIVIDE(_notasSemEvento, _totalNotas, 0)
+			```
+		formatString: 0.00%;-0.00%;0.00%
+		displayFolder: Eventos\Percentuais
+		lineageTag: 7d7ec2ac-a8d1-40ac-83f3-cddb4887434d
+
+	measure 'Média Dias Atraso Eventos' =
+			
+			
+			VAR MinDataFiltrada = MIN(dCalendario[Data])
+			VAR MaxDataFiltrada = MAX(dCalendario[Data])
+			
+			RETURN
+			    ROUND(
+			        CALCULATE(
+			            AVERAGE(dNotas[DiasAtraso]),
+			            FILTER(
+			                dNotas,
+			                (dNotas[PrimeiraDataConsulta] >= MinDataFiltrada && dNotas[PrimeiraDataConsulta] <= MaxDataFiltrada) ||
+			                (dNotas[UltimaDataConsulta] >= MinDataFiltrada && dNotas[UltimaDataConsulta] <= MaxDataFiltrada)
+			            )
+			        ),
+			        2
+			    )
+		displayFolder: Eventos\Análise
+		lineageTag: 35c7434a-eb3d-4221-ae21-cd7c5b865a21
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Value
+		isHidden
+		formatString: 0
+		lineageTag: 7a1545cd-4531-4442-aedd-765e438820d1
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Value]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition Medidas = calculated
+		mode: import
+		source = {1}
+
+	annotation PBI_Id = db4677707dcf42829e4376ba5b64c074
+

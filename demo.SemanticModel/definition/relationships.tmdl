@@ -1,0 +1,198 @@
+relationship c3d38f12-7704-4aa1-bf6a-f7c138c306d8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dNotas.UltimaDataEmissao
+	toColumn: LocalDateTable_83a52df2-5089-4c3f-a11a-caaa21a192c8.Date
+
+relationship 53158e81-be1d-4d6a-ae12-da4057583d02
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dNotas.UltimaDataEvento
+	toColumn: LocalDateTable_07d46403-53c2-4ddf-9b0c-ac2025383a3a.Date
+
+relationship c4fba122-8026-4b84-89f3-342744b1674a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dNotas.PrimeiraDataCarga
+	toColumn: LocalDateTable_053e01f1-20a6-444f-8bd0-1492fc347afe.Date
+
+relationship 58ba11cd-0174-4a33-8f90-2eaaa056daa7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dNotas.UltimaDataCarga
+	toColumn: LocalDateTable_1138d0fa-cec2-43c2-8d76-364bdcfc60c7.Date
+
+relationship 59f60d4b-eec6-4e0d-a242-039551bf6724
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fEventos.DataOcorrencia
+	toColumn: LocalDateTable_ceccdd3c-d111-4f32-8c3b-b027f3e87400.Date
+
+relationship f077ecc0-e5a0-42d2-83db-a57d3e18830c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fEventos.DataCarga
+	toColumn: LocalDateTable_62366c72-d347-480b-a126-eba06a71b67b.Date
+
+relationship AutoDetected_a90cbbef-1b8b-4b05-9d48-b01d9ddf0e49
+	fromColumn: fEventos.ChaveNotaFiscal
+	toColumn: dNotas.ChaveNotaFiscal
+
+relationship 954a86cd-9541-4589-a885-1bf9971d6ffe
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendario.Data
+	toColumn: LocalDateTable_b5a146aa-c01f-44ad-9c5b-99959217ce37.Date
+
+relationship e161de03-9f64-4b8f-992b-016c8854edfc
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendario.AnoInicio
+	toColumn: LocalDateTable_d2699ca2-24db-4e73-b17e-7473a2a00fee.Date
+
+relationship d881c1c1-24bf-4b0b-a393-15bacdf19665
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendario.AnoFim
+	toColumn: LocalDateTable_af3801ab-3b79-47d3-955e-6b02a1ef7d1b.Date
+
+relationship 570b35e7-771c-47b4-ae3d-8977f0e31d77
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendario.MesInicio
+	toColumn: LocalDateTable_1f7187b8-c293-4f96-9da4-c1d3ded7d356.Date
+
+relationship 95d9368d-2825-456a-8805-5a929ade43ee
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendario.MesFim
+	toColumn: LocalDateTable_46f9f4ed-8537-4c3d-a2b3-982098217053.Date
+
+relationship b85e7636-d1a9-4d86-823c-f7d979db9202
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendario.TrimestreInicio
+	toColumn: LocalDateTable_b2434486-f002-49bb-8460-b94d69acabbc.Date
+
+relationship 8a7f4ae1-71ad-4ba0-b297-9785890b766c
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendario.TrimestreFim
+	toColumn: LocalDateTable_274de1b2-57fe-409c-9290-e5dfab3f292e.Date
+
+relationship 3b20f547-01b1-4b2e-bef0-e55ce47a3cf1
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendario.SemanaIsoInicio
+	toColumn: LocalDateTable_b59b3654-775f-4adf-a9e3-e7a51efff02d.Date
+
+relationship 23600a91-0cbc-47cc-b2ef-ead8dbb0265d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendario.SemanaIsoFim
+	toColumn: LocalDateTable_d8d0efa1-4381-49df-9dd2-cea14fcad61c.Date
+
+relationship cde92461-3140-4eee-9ad7-ffad007008d7
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fCarteira.DataLancamento
+	toColumn: LocalDateTable_1d0d2849-185b-4626-b968-340657d0458b.Date
+
+relationship 25e721f3-749e-4f13-ba5a-696693afcb47
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fCarteira.DataVencimento
+	toColumn: LocalDateTable_b5d56dc1-8b63-484e-ae9e-25c3478f6fcc.Date
+
+relationship 6b67e125-4428-4ed2-a741-f08488103858
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fCarteira._loaded_at
+	toColumn: LocalDateTable_bd362921-fd59-4587-a746-4f9c89cd80e1.Date
+
+relationship 70406608-a66b-17fd-7df8-cf80b2d1f8d9
+	fromColumn: fCarteira.ChaveNotaFiscal
+	toColumn: dNotas.ChaveNotaFiscal
+
+relationship 09b1b4d1-1bd0-f926-c31c-e3f81035b162
+	fromColumn: dNotas.CodigoEventoEfetivo
+	toColumn: dEventos.CodigoEvento
+
+relationship 7f27654e-2569-4878-9463-3e04da63b9a8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dNotas.DataCarga
+	toColumn: LocalDateTable_ba67ee22-25eb-4ab6-a731-fd1da894228a.Date
+
+relationship 7db43f4c-0a86-4825-af1d-981a2ae4df61
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendarioEmissao.Data
+	toColumn: LocalDateTable_7f8564f7-7702-42c8-bb88-61a9ba773346.Date
+
+relationship 12de688e-3bde-46fa-97d3-59f44e8f12e8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendarioEmissao.AnoInicio
+	toColumn: LocalDateTable_5ae54446-bbae-4975-bec2-e35925f46bef.Date
+
+relationship a5f35d6d-9c91-4560-becd-7ffca74b4310
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendarioEmissao.AnoFim
+	toColumn: LocalDateTable_855eccec-2a13-4288-a7bc-ba3df62df37e.Date
+
+relationship f54b8f9a-e2df-42dc-afa3-79978c43beec
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendarioEmissao.MesInicio
+	toColumn: LocalDateTable_9f555e1b-599f-42b6-a49f-d3068092b805.Date
+
+relationship 46bcea2a-8c83-4fee-a97c-d7a30b375e60
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendarioEmissao.MesFim
+	toColumn: LocalDateTable_dd34d2e5-7637-4254-8652-66e2df19b5e6.Date
+
+relationship 1854fdf2-816e-4c92-b864-7be15751d7e4
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendarioEmissao.TrimestreInicio
+	toColumn: LocalDateTable_d0fe9098-78d0-4ed5-8e3d-036f1fd689bf.Date
+
+relationship 605dbe95-7ceb-4522-b66f-d18440c9fc5a
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendarioEmissao.TrimestreFim
+	toColumn: LocalDateTable_22ee383b-1d90-4451-8ec2-cdad2698a04c.Date
+
+relationship c9d12780-93f3-4b8d-9d9c-9f67b81526c9
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendarioEmissao.SemanaIsoInicio
+	toColumn: LocalDateTable_b450c9b1-685b-43cd-8896-f5bc7634b6b1.Date
+
+relationship 3cdaaf29-c959-47bc-a5f6-72923b12b65f
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dCalendarioEmissao.SemanaIsoFim
+	toColumn: LocalDateTable_d38cc24b-963b-43ce-ace6-d79bc97de10c.Date
+
+relationship f429b65f-d9eb-4432-864e-4a80d043e8d8
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fDocumentos.DataVencimento
+	toColumn: LocalDateTable_3ccaf750-566d-418b-8488-b6003b336ce2.Date
+
+relationship 122238a1-408c-4bf0-aa0c-c83ee7249f70
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fDocumentos.DataVencimentoAlterado
+	toColumn: LocalDateTable_9b142620-2aa4-401a-bc0b-ac166cab60a2.Date
+
+relationship 941b9dad-c9ff-492a-9f1b-d871bf1c29c2
+	joinOnDateBehavior: datePartOnly
+	fromColumn: fDocumentos.DataCarga
+	toColumn: LocalDateTable_05c54644-c017-499e-9057-9f2438cf87ee.Date
+
+relationship AutoDetected_1d095371-07c0-47ff-bc6c-750f07ae400c
+	fromColumn: fDocumentos.ChaveNotaFiscal
+	toColumn: dNotas.ChaveNotaFiscal
+
+relationship 2f571012-8a90-4614-8c5c-eae41e71cd77
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dNotas.UltimaDataConsulta
+	toColumn: LocalDateTable_c6b92ca5-215f-41d5-bee4-b45c8fa6d772.Date
+
+relationship bd085a7c-58b7-43d6-9b98-2f6319f6840d
+	joinOnDateBehavior: datePartOnly
+	fromColumn: dNotas.PrimeiraDataConsulta
+	toColumn: LocalDateTable_7bc3eece-0459-4efe-9a68-eb8a20329db4.Date
+
+relationship 5830296d-31c8-9027-ea57-73c0fedfc87b
+	fromColumn: fDocumentos.DataConsulta
+	toColumn: dCalendario.Data
+
+relationship 98f5d42d-b7a3-b32e-88c4-ca427ea94cac
+	fromColumn: dNotas.DataEmissao
+	toColumn: dCalendarioEmissao.Data
+
+relationship 64fdf50b-2cfb-484a-8cb4-67cfce8a53d5
+	joinOnDateBehavior: datePartOnly
+	fromColumn: _dDataCarga.DataCarga
+	toColumn: LocalDateTable_6994eb9a-ae88-48db-b5ea-204de8e08620.Date
+
+relationship 61ab00fa-d7dc-7b78-dbe1-c95f3b7ec756
+	fromColumn: fCarteira.DataCarga
+	toColumn: _dDataCarga.DataCarga
+

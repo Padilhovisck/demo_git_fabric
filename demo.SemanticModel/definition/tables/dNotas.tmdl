@@ -1,0 +1,385 @@
+table dNotas
+	lineageTag: 96263c74-807c-429e-85f2-a88e481f2288
+
+	column ChaveNotaFiscal
+		dataType: string
+		lineageTag: cb2bee1c-6f87-458f-adbf-eb4671446d84
+		summarizeBy: none
+		sourceColumn: ChaveNotaFiscal
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataCarga
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: e67d1ad6-0082-42fa-8d77-12f5d8c0d0bc
+		summarizeBy: none
+		sourceColumn: DataCarga
+
+		variation Variation
+			isDefault
+			relationship: 7f27654e-2569-4878-9463-3e04da63b9a8
+			defaultHierarchy: LocalDateTable_ba67ee22-25eb-4ab6-a731-fd1da894228a.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataEmissao
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: dedf1120-9886-4ad6-b914-c886869d197a
+		summarizeBy: none
+		sourceColumn: DataEmissao
+
+		annotation SummarizationSetBy = Automatic
+
+	column UltimaDataEmissao
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: b983edca-4a1d-4ab6-8805-bd55331288b5
+		summarizeBy: none
+		sourceColumn: UltimaDataEmissao
+
+		variation Variation
+			isDefault
+			relationship: c3d38f12-7704-4aa1-bf6a-f7c138c306d8
+			defaultHierarchy: LocalDateTable_83a52df2-5089-4c3f-a11a-caaa21a192c8.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column UltimaDataEvento
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 714cbfe7-21cc-472b-b3dc-3152f75ec4c6
+		summarizeBy: none
+		sourceColumn: UltimaDataEvento
+
+		variation Variation
+			isDefault
+			relationship: 53158e81-be1d-4d6a-ae12-da4057583d02
+			defaultHierarchy: LocalDateTable_07d46403-53c2-4ddf-9b0c-ac2025383a3a.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column NumeroNotaFiscal
+		dataType: string
+		lineageTag: ec0468e0-d96c-4816-a980-1b4943a4397c
+		summarizeBy: none
+		sourceColumn: NumeroNotaFiscal
+
+		annotation SummarizationSetBy = Automatic
+
+	column CnpjCpfEmitente
+		dataType: string
+		lineageTag: 37be8c84-ecd1-4d27-a997-54ccc1eb8a82
+		summarizeBy: none
+		sourceColumn: CnpjCpfEmitente
+
+		annotation SummarizationSetBy = Automatic
+
+	column NomeFantasiaEmitente
+		dataType: string
+		lineageTag: 6c108f42-41e0-457e-8beb-2042207b1f19
+		summarizeBy: none
+		sourceColumn: NomeFantasiaEmitente
+
+		annotation SummarizationSetBy = Automatic
+
+	column MunicipioEmitente
+		dataType: string
+		lineageTag: 40c2a9ce-af85-43c6-aab7-5f43df99649a
+		summarizeBy: none
+		sourceColumn: MunicipioEmitente
+
+		annotation SummarizationSetBy = Automatic
+
+	column UfEmitente
+		dataType: string
+		lineageTag: c4759f2d-a455-4a71-aa8a-7123565963f7
+		summarizeBy: none
+		sourceColumn: UfEmitente
+
+		annotation SummarizationSetBy = Automatic
+
+	column MunicipioVenda
+		dataType: string
+		lineageTag: fd359f29-bf20-48ca-9d29-218abebacb14
+		summarizeBy: none
+		sourceColumn: MunicipioVenda
+
+		annotation SummarizationSetBy = Automatic
+
+	column UfVenda
+		dataType: string
+		lineageTag: 379a1a36-8833-4a53-bee7-8c661ea3c223
+		summarizeBy: none
+		sourceColumn: UfVenda
+
+		annotation SummarizationSetBy = Automatic
+
+	column CnpjCpfDestinatario
+		dataType: string
+		lineageTag: c99f83fc-b18e-4b85-92c9-886cccd2e5a8
+		summarizeBy: none
+		sourceColumn: CnpjCpfDestinatario
+
+		annotation SummarizationSetBy = Automatic
+
+	column NomeDestinatario
+		dataType: string
+		lineageTag: 31b5d1b3-c1d4-41e2-9291-b43e4b7738d4
+		summarizeBy: none
+		sourceColumn: NomeDestinatario
+
+		annotation SummarizationSetBy = Automatic
+
+	column MunicipioDestinatario
+		dataType: string
+		lineageTag: 3c8cd8b5-9503-4d4d-9ed0-07b84e311c5a
+		summarizeBy: none
+		sourceColumn: MunicipioDestinatario
+
+		annotation SummarizationSetBy = Automatic
+
+	column UfDestinatario
+		dataType: string
+		lineageTag: 99a35c7f-2f27-4f02-8f92-d70adc0d4d97
+		summarizeBy: none
+		sourceColumn: UfDestinatario
+
+		annotation SummarizationSetBy = Automatic
+
+	column CnpjCpfTransportador
+		dataType: string
+		lineageTag: fccf1ad0-116e-4a82-b333-02b4f38080dd
+		summarizeBy: none
+		sourceColumn: CnpjCpfTransportador
+
+		annotation SummarizationSetBy = Automatic
+
+	column NomeTransportador
+		dataType: string
+		lineageTag: 144888fe-e2c7-4571-b323-7d7f070f5fce
+		summarizeBy: none
+		sourceColumn: NomeTransportador
+
+		annotation SummarizationSetBy = Automatic
+
+	column TransportadorFlag
+		dataType: string
+		lineageTag: b9def20c-a84e-49bb-b843-862347215a08
+		summarizeBy: none
+		sourceColumn: TransportadorFlag
+
+		annotation SummarizationSetBy = Automatic
+
+	column ModalidadeFreteTransportador
+		dataType: string
+		lineageTag: 98dcbbcc-0819-480a-a17e-c776103c4dce
+		summarizeBy: none
+		sourceColumn: ModalidadeFreteTransportador
+
+		annotation SummarizationSetBy = Automatic
+
+	column FretePorConta
+		dataType: string
+		lineageTag: ba5ed360-9fd1-428d-937b-2b8aab2f9207
+		summarizeBy: none
+		sourceColumn: FretePorConta
+
+		annotation SummarizationSetBy = Automatic
+
+	column PrimeiraDataConsulta
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: fea2e6ae-c6a0-4b7f-b01a-ad63227b0056
+		summarizeBy: none
+		sourceColumn: PrimeiraDataConsulta
+
+		variation Variation
+			isDefault
+			relationship: bd085a7c-58b7-43d6-9b98-2f6319f6840d
+			defaultHierarchy: LocalDateTable_7bc3eece-0459-4efe-9a68-eb8a20329db4.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column UltimaDataConsulta
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: f1dad50d-516f-476f-a2e4-59c65958c68e
+		summarizeBy: none
+		sourceColumn: UltimaDataConsulta
+
+		variation Variation
+			isDefault
+			relationship: 2f571012-8a90-4614-8c5c-eae41e71cd77
+			defaultHierarchy: LocalDateTable_c6b92ca5-215f-41d5-bee4-b45c8fa6d772.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column PrimeiraDataCarga
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: abb791a9-0370-428a-8435-9e3c7d857882
+		summarizeBy: none
+		sourceColumn: PrimeiraDataCarga
+
+		variation Variation
+			isDefault
+			relationship: c4fba122-8026-4b84-89f3-342744b1674a
+			defaultHierarchy: LocalDateTable_053e01f1-20a6-444f-8bd0-1492fc347afe.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column UltimaDataCarga
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 1a670c48-1324-44c0-8e46-8350bfd5b68b
+		summarizeBy: none
+		sourceColumn: UltimaDataCarga
+
+		variation Variation
+			isDefault
+			relationship: 58ba11cd-0174-4a33-8f90-2eaaa056daa7
+			defaultHierarchy: LocalDateTable_1138d0fa-cec2-43c2-8d76-364bdcfc60c7.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column EventoPreponderanteFinalFlag
+		dataType: string
+		lineageTag: 5f85840e-3ec1-47c9-8b54-91a9cb8bf9fe
+		summarizeBy: none
+		sourceColumn: EventoPreponderanteFinalFlag
+
+		annotation SummarizationSetBy = Automatic
+
+	column CriticidadeEvento
+		dataType: string
+		lineageTag: 4c801e72-c8c1-4ee3-981a-6dc70c7b1821
+		summarizeBy: none
+		sourceColumn: CriticidadeEvento
+
+		annotation SummarizationSetBy = Automatic
+
+	column SituacaoEvento
+		dataType: string
+		lineageTag: 44649cce-8517-4c51-82f1-5f174a6dbbc8
+		summarizeBy: none
+		sourceColumn: SituacaoEvento
+
+		annotation SummarizationSetBy = Automatic
+
+	column UltimoEvento
+		dataType: string
+		lineageTag: dca5e391-7bea-4fce-99c2-c402ee5d2176
+		summarizeBy: none
+		sourceColumn: UltimoEvento
+
+		annotation SummarizationSetBy = Automatic
+
+	column UltimoCodigoEvento
+		dataType: string
+		lineageTag: 304dc898-f7fb-4e60-9ae9-2835d2f77fc1
+		summarizeBy: none
+		sourceColumn: UltimoCodigoEvento
+
+		annotation SummarizationSetBy = Automatic
+
+	column CodigoEventoEfetivo
+		dataType: string
+		lineageTag: ed4b3be1-bd03-4e4c-a871-c089dffa18c7
+		summarizeBy: none
+		sourceColumn: CodigoEventoEfetivo
+
+		annotation SummarizationSetBy = Automatic
+
+	column UltimoEventoEfetivoFlag
+		dataType: int64
+		formatString: 0
+		lineageTag: e5c39e91-b366-4252-bb3e-db954badaf53
+		summarizeBy: sum
+		sourceColumn: UltimoEventoEfetivoFlag
+
+		annotation SummarizationSetBy = Automatic
+
+	column UltrapassagemEventoPreponderanteFlag
+		dataType: int64
+		formatString: 0
+		lineageTag: 6f3fde1d-48d8-43c9-83b9-2b21137348c5
+		summarizeBy: sum
+		sourceColumn: UltrapassagemEventoPreponderanteFlag
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClienteId
+		dataType: int64
+		formatString: 0
+		lineageTag: a365ea1a-9bd2-45be-b8bb-300898a66b26
+		summarizeBy: count
+		sourceColumn: ClienteId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DiasAtraso
+		dataType: int64
+		formatString: 0
+		lineageTag: 18a51ad7-dfce-4d0a-a76d-de86909f1191
+		summarizeBy: sum
+		sourceColumn: DiasAtraso
+
+		annotation SummarizationSetBy = Automatic
+
+	column FaixaDiasAtraso
+		dataType: string
+		lineageTag: 4bd9ac01-dbeb-4402-9c5c-b0f844d6f17a
+		summarizeBy: none
+		sourceColumn: FaixaDiasAtraso
+
+		annotation SummarizationSetBy = Automatic
+
+	column NomeFantasiaEmitenteTruncado
+		dataType: string
+		lineageTag: 7bcca0e1-9f53-4adc-8b58-00e36fea9d2e
+		summarizeBy: none
+		sourceColumn: NomeFantasiaEmitenteTruncado
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dNotas = m
+		mode: import
+		queryGroup: '2. Dimensão'
+		source =
+				let
+				    // Conexão com o BigQuery
+				    Fonte = GoogleBigQuery.Database(),
+				
+				    // Seleciona o projeto
+				    Projeto = Fonte{[Name = gprojeto]}[Data],
+				
+				    // Seleciona o schema/dataset
+				    Schema = Projeto{[Name = gdatabase, Kind = "Schema"]}[Data],
+				
+				    // Obtém a tabela de notas consolidadas
+				    DimNotas = Schema{[Name = "dim_notas_consolidadas", Kind = "Table"]}[Data],
+				
+				    // Filtra por janela incremental de carga
+				    FiltraDataCarga =
+				        Table.SelectRows(
+				            DimNotas,
+				            each [DataCarga] >= RangeStart and [DataCarga] < RangeEnd
+				        ),
+				
+				    // Filtra apenas registros do cliente informado
+				    FiltraCliente =
+				        Table.SelectRows(
+				            FiltraDataCarga,
+				            each [ClienteId] = IDCliente
+				        )
+				in
+				    FiltraCliente
+
+	annotation PBI_IsMQueryFoldable = True
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

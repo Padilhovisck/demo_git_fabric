@@ -1,0 +1,38 @@
+table 'Parâmetro Faixa'
+	isHidden
+	lineageTag: 9094ce02-1b36-40ff-a25c-fbc43d6a4b9a
+
+	column Parâmetro
+		isHidden
+		lineageTag: 6ad1f948-f932-46bd-9ba4-79755f39c895
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Parâmetro]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Valor
+		isHidden
+		formatString: 0
+		lineageTag: 765aad16-efa3-476a-ac3f-1bf9094eb0a5
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Valor]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parâmetro Faixa' = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Parâmetro", STRING,
+				    "Valor", INTEGER,
+				    {
+				        { "Qtde Notas", 0 },
+				        { "Valores", 1 }
+				    }
+				)
+
+	annotation PBI_Id = 5624e6a4cf654f70ad2e4c71b170f20e
+

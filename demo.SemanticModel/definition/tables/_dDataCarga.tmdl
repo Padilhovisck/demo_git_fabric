@@ -1,0 +1,36 @@
+table _dDataCarga
+	isHidden
+	lineageTag: 7f51474a-d066-40d7-8261-bbb7ed479ee4
+
+	column DataCarga
+		isHidden
+		formatString: General Date
+		lineageTag: 9c02a05b-fcc0-4afa-b70e-c5ad2d1c22ad
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [DataCarga]
+
+		variation Variation
+			isDefault
+			relationship: 64fdf50b-2cfb-484a-8cb4-67cfce8a53d5
+			defaultHierarchy: LocalDateTable_6994eb9a-ae88-48db-b5ea-204de8e08620.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition _dDataCarga = calculated
+		mode: import
+		source =
+				
+				TOPN (
+				    5,
+				    DISTINCT (
+				        SELECTCOLUMNS (
+				            fCarteira,
+				            "DataCarga", fCarteira[DataCarga]
+				        )
+				    ),
+				    [DataCarga], DESC
+				)
+
+	annotation PBI_Id = ddd5a1200ae94b0bb23ae2a33ce757d0
+

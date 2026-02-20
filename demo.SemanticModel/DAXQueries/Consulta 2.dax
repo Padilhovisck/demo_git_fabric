@@ -1,0 +1,36 @@
+DEFINE
+    FUNCTION fnMunicipioNormalizado ( MunicipioTxt ) =
+        VAR Txt =
+            UPPER ( TRIM ( MunicipioTxt ) )
+        RETURN
+            SUBSTITUTE (
+                SUBSTITUTE (
+                    SUBSTITUTE (
+                        SUBSTITUTE (
+                            SUBSTITUTE (
+                                SUBSTITUTE (
+                                    SUBSTITUTE (
+                                        SUBSTITUTE (
+                                            SUBSTITUTE (
+                                                SUBSTITUTE (
+                                                    Txt,
+                                                    "Á", "A"
+                                                ),
+                                                "À", "A"
+                                            ),
+                                            "Ã", "A"
+                                        ),
+                                        "Â", "A"
+                                    ),
+                                    "É", "E"
+                                ),
+                                "Ê", "E"
+                            ),
+                            "Í", "I"
+                        ),
+                        "Ó", "O"
+                    ),
+                    "Ô", "O"
+                ),
+                "Õ", "O"
+            );

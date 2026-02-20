@@ -1,0 +1,26 @@
+table 'Filtro Ultrapassagem'
+	isHidden
+	lineageTag: d5561067-a5c1-4c5a-b888-45d3de5260bf
+
+	column Filtro
+		isHidden
+		lineageTag: 67bfee10-a436-4dfd-b732-95739f731f8f
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Filtro]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Filtro Ultrapassagem' = calculated
+		mode: import
+		source = ```
+				
+				DATATABLE(
+				    "Filtro", STRING,
+				    { {"Todos"}, {"Sim"}, {"Não"} }
+				)
+				
+				```
+
+	annotation PBI_Id = 4ae941c0526f482184bc3c848d502906
+

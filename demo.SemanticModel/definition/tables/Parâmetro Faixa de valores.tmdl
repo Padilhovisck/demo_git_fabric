@@ -1,0 +1,41 @@
+table 'Parâmetro Faixa de valores'
+	isHidden
+	lineageTag: e5e1c5a8-2a38-49e4-9b63-3660152e27fc
+
+	column 'Parâmetro Faixa de valores'
+		isHidden
+		lineageTag: af329b01-ee74-414a-9fea-7ab056079c11
+		summarizeBy: none
+		sourceColumn: [Value1]
+
+		relatedColumnDetails
+			groupByColumn: 'Parâmetro Faixa de valores Campos'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parâmetro Faixa de valores Campos'
+		isHidden
+		formatString: 0
+		lineageTag: bc5827ad-1f29-4d75-8cd0-819e27a1e6c1
+		summarizeBy: sum
+		sourceColumn: [Value2]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parâmetro Faixa de valores' = calculated
+		mode: import
+		source = ```
+				{    
+				    ("Qtde Notas", 0),
+				    ("Total Carteira", 1)
+				}
+				```
+
+	annotation PBI_Id = af681cbb9687440a9090b5f9d3f13070
+

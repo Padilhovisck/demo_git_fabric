@@ -1,0 +1,108 @@
+table dEventos
+	lineageTag: 465ceaeb-06ee-4ca2-84b1-6d32a8ae8337
+
+	column PreponderanciaCodigo
+		dataType: int64
+		formatString: 0
+		lineageTag: 7e5b54d5-32e1-4905-b0db-ee67727e60a4
+		summarizeBy: none
+		sourceColumn: PreponderanciaCodigo
+
+		annotation SummarizationSetBy = Automatic
+
+	column CodigoEvento
+		dataType: string
+		lineageTag: b8d624c4-96cf-4b15-b202-015d55e77f03
+		summarizeBy: none
+		sourceColumn: CodigoEvento
+
+		annotation SummarizationSetBy = Automatic
+
+	column DescricaoEvento
+		dataType: string
+		lineageTag: 914b3474-c08d-47f9-a6a8-b00dda388123
+		summarizeBy: none
+		sourceColumn: DescricaoEvento
+
+		annotation SummarizationSetBy = Automatic
+
+	column Criticidade
+		dataType: string
+		lineageTag: 0a811210-937b-4040-8c67-6ea921c30413
+		summarizeBy: none
+		sourceColumn: Criticidade
+
+		annotation SummarizationSetBy = Automatic
+
+	column EventoPosNeg
+		dataType: string
+		lineageTag: ff8975b0-8124-448a-b6b2-d5e8da82f480
+		summarizeBy: none
+		sourceColumn: EventoPosNeg
+
+		annotation SummarizationSetBy = Automatic
+
+	column EventoStatusPendEncerrado
+		dataType: string
+		lineageTag: 8ad7e848-8cb6-4ad7-90b6-9996beb4a921
+		summarizeBy: none
+		sourceColumn: EventoStatusPendEncerrado
+
+		annotation SummarizationSetBy = Automatic
+
+	column Prioridade
+		dataType: int64
+		formatString: 0
+		lineageTag: 5f950eb9-93d3-4d28-8327-446b821c17cc
+		summarizeBy: none
+		sourceColumn: Prioridade
+
+		annotation SummarizationSetBy = Automatic
+
+	column Situacao
+		dataType: string
+		lineageTag: 0c4c758b-62bd-4be5-9684-81556abe1c90
+		summarizeBy: none
+		sourceColumn: Situacao
+
+		annotation SummarizationSetBy = Automatic
+
+	column EventoPendentes
+		dataType: string
+		lineageTag: 6cf8c60f-8ad7-480a-99b7-73756803300e
+		summarizeBy: none
+		sourceColumn: EventoPendentes
+
+		annotation SummarizationSetBy = Automatic
+
+	column UpperEventoPendentes
+		dataType: string
+		lineageTag: 0ca82f1e-b85d-455c-82db-f4f48cfb1c9f
+		summarizeBy: none
+		sourceColumn: UpperEventoPendentes
+
+		annotation SummarizationSetBy = Automatic
+
+	partition dEventos = m
+		mode: import
+		queryGroup: '2. Dimensão'
+		source =
+				let
+				    // Conexão com o BigQuery
+				    Fonte = GoogleBigQuery.Database(),
+				
+				    // Seleciona o projeto
+				    Projeto = Fonte{[Name = gprojeto]}[Data],
+				
+				    // Seleciona o schema/dataset
+				    Schema = Projeto{[Name = gdatabase, Kind = "Schema"]}[Data],
+				
+				    // Obtém a view de eventos
+				    DimEventos = Schema{[Name = "vw_dim_eventos", Kind = "View"]}[Data]
+				in
+				    DimEventos
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

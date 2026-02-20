@@ -1,0 +1,9 @@
+    EVALUATE
+	SUMMARIZE(
+        FILTER(
+            fCarteira,
+            RELATED(dNotas[ChaveNotaFiscal]) <> BLANK()
+        ),
+        fCarteira[CnpjCpfCedente],
+        "TotalCedente", [Total da Carteira]
+    )

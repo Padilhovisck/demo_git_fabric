@@ -1,0 +1,342 @@
+table fCarteira
+	lineageTag: 316c9585-e183-4d22-b7a2-ebac6644295c
+
+	refreshPolicy
+		policyType: basic
+		rollingWindowGranularity: year
+		rollingWindowPeriods: 2
+		incrementalGranularity: day
+		incrementalPeriods: 1
+		pollingExpression = let MaxDataCarga = List.Max(fCarteira[DataCarga]), accountForNull = if MaxDataCarga = null then #datetime(1901, 01, 01, 00, 00, 00) else MaxDataCarga in accountForNull
+		sourceExpression =
+			let
+			    // Conexão com o BigQuery
+			    Fonte = GoogleBigQuery.Database(),
+			
+			    // Seleciona o projeto
+			    Projeto = Fonte{[Name = gprojeto]}[Data],
+			
+			    // Seleciona o schema/dataset
+			    Schema = Projeto{[Name = gdatabase, Kind = "Schema"]}[Data],
+			
+			    // Obtém a tabela fato de carteira
+			    FactCarteira = Schema{[Name = "fact_carteira", Kind = "Table"]}[Data],
+			
+			    // Filtra por janela incremental de carga
+			    FiltraDataCarga =
+			        Table.SelectRows(
+			            FactCarteira,
+			            each [DataCarga] >= RangeStart and [DataCarga] < RangeEnd
+			        ),
+			
+			    // Filtra apenas registros do cliente informado
+			    FiltraCliente =
+			        Table.SelectRows(
+			            FiltraDataCarga,
+			            each [ClienteId] = IDCliente
+			        )
+			in
+			    FiltraCliente
+
+	column ChaveNotaFiscal
+		dataType: string
+		lineageTag: 5daa4935-ab21-46a1-84b9-6c1b5fe4f422
+		summarizeBy: none
+		sourceColumn: ChaveNotaFiscal
+
+		annotation SummarizationSetBy = Automatic
+
+	column NumeroLancamento
+		dataType: string
+		lineageTag: 619319ed-3eec-414a-be3c-1c189e48311f
+		summarizeBy: none
+		sourceColumn: NumeroLancamento
+
+		annotation SummarizationSetBy = Automatic
+
+	column CodigoCedente
+		dataType: int64
+		formatString: 0
+		lineageTag: 073e8882-a9f3-47a5-8cc6-f2b90a54e4ab
+		summarizeBy: sum
+		sourceColumn: CodigoCedente
+
+		annotation SummarizationSetBy = Automatic
+
+	column NomeCedente
+		dataType: string
+		lineageTag: 373afb49-d065-4968-9e33-343a7fe3ed82
+		summarizeBy: none
+		sourceColumn: NomeCedente
+
+		annotation SummarizationSetBy = Automatic
+
+	column CnpjCedenteRaiz
+		dataType: string
+		lineageTag: fd436e83-def2-4499-8df6-eff1bba2cd8f
+		summarizeBy: none
+		sourceColumn: CnpjCedenteRaiz
+
+		annotation SummarizationSetBy = Automatic
+
+	column CnpjCpfCedente
+		dataType: string
+		lineageTag: df1ef82f-3f60-4398-b269-8286d7a995c6
+		summarizeBy: none
+		sourceColumn: CnpjCpfCedente
+
+		annotation SummarizationSetBy = Automatic
+
+	column MunicipioCedente
+		dataType: string
+		lineageTag: b7598851-6bef-4af5-8f73-22b569ce7b3b
+		summarizeBy: none
+		sourceColumn: MunicipioCedente
+
+		annotation SummarizationSetBy = Automatic
+
+	column UfCedente
+		dataType: string
+		lineageTag: 0bdd45b4-d555-4f7a-bf83-18ab9a8407ff
+		summarizeBy: none
+		sourceColumn: UfCedente
+
+		annotation SummarizationSetBy = Automatic
+
+	column NomeSacado
+		dataType: string
+		lineageTag: 5c8f92cc-3820-4a24-a423-483e86eaea99
+		summarizeBy: none
+		sourceColumn: NomeSacado
+
+		annotation SummarizationSetBy = Automatic
+
+	column CnpjCpfSacado
+		dataType: string
+		lineageTag: 88a49587-036b-4826-a34d-f77b95b0eeaf
+		summarizeBy: none
+		sourceColumn: CnpjCpfSacado
+
+		annotation SummarizationSetBy = Automatic
+
+	column CnpjSacadoRaiz
+		dataType: string
+		lineageTag: ce092d6c-9c4c-4043-8a06-132e98901305
+		summarizeBy: none
+		sourceColumn: CnpjSacadoRaiz
+
+		annotation SummarizationSetBy = Automatic
+
+	column MunicipioSacado
+		dataType: string
+		lineageTag: efce6b94-2bbd-46d7-909d-4839fc0400e6
+		summarizeBy: none
+		sourceColumn: MunicipioSacado
+
+		annotation SummarizationSetBy = Automatic
+
+	column UfSacado
+		dataType: string
+		lineageTag: 75ef760a-6e06-4137-a141-4c05677cd8c5
+		summarizeBy: none
+		sourceColumn: UfSacado
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataLancamento
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 17f5253d-5fb8-47b7-90d7-c46d0c85e4cd
+		summarizeBy: none
+		sourceColumn: DataLancamento
+
+		variation Variation
+			isDefault
+			relationship: cde92461-3140-4eee-9ad7-ffad007008d7
+			defaultHierarchy: LocalDateTable_1d0d2849-185b-4626-b968-340657d0458b.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataVencimento
+		dataType: dateTime
+		formatString: Short Date
+		lineageTag: 86a8fcd0-1e73-4e9e-96b8-d3f14159bce4
+		summarizeBy: none
+		sourceColumn: DataVencimento
+
+		variation Variation
+			isDefault
+			relationship: 25e721f3-749e-4f13-ba5a-696693afcb47
+			defaultHierarchy: LocalDateTable_b5d56dc1-8b63-484e-ae9e-25c3478f6fcc.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column Documento
+		dataType: string
+		lineageTag: 7b595bcd-ae45-4c24-aab7-3d27b5f2aa76
+		summarizeBy: none
+		sourceColumn: Documento
+
+		annotation SummarizationSetBy = Automatic
+
+	column Valor
+		dataType: double
+		lineageTag: e1411e44-8fea-4975-89b3-c751a2373a28
+		summarizeBy: sum
+		sourceColumn: Valor
+
+		annotation SummarizationSetBy = Automatic
+
+		annotation PBI_FormatHint = {"isGeneralNumber":true}
+
+	column Recebivel
+		dataType: string
+		lineageTag: 960cdb5d-81c9-4973-8f0e-5c5fefeb2eec
+		summarizeBy: none
+		sourceColumn: Recebivel
+
+		annotation SummarizationSetBy = Automatic
+
+	column Cobranca
+		dataType: string
+		lineageTag: c8c32dc0-44d2-4916-b5b0-68e84fd29a7a
+		summarizeBy: none
+		sourceColumn: Cobranca
+
+		annotation SummarizationSetBy = Automatic
+
+	column Canhoto
+		dataType: string
+		lineageTag: 9bc6ea83-56f6-4d10-be0c-5adf876f6ae3
+		summarizeBy: none
+		sourceColumn: Canhoto
+
+		annotation SummarizationSetBy = Automatic
+
+	column CanhotoDescricao
+		dataType: string
+		lineageTag: baab92e8-7a3d-4060-a8b7-27d127c9d36b
+		summarizeBy: none
+		sourceColumn: CanhotoDescricao
+
+		annotation SummarizationSetBy = Automatic
+
+	column Checagem
+		dataType: string
+		lineageTag: 0c846017-6aca-4fc1-b4cc-7a6c869ccbf3
+		summarizeBy: none
+		sourceColumn: Checagem
+
+		annotation SummarizationSetBy = Automatic
+
+	column ChecagemDescricao
+		dataType: string
+		lineageTag: 4c587b38-65a5-43ec-9124-2ab315535e5c
+		summarizeBy: none
+		sourceColumn: ChecagemDescricao
+
+		annotation SummarizationSetBy = Automatic
+
+	column Descricao
+		dataType: string
+		lineageTag: 1c143adb-5ca9-48c4-a3cd-8f706d2acb13
+		summarizeBy: none
+		sourceColumn: Descricao
+
+		annotation SummarizationSetBy = Automatic
+
+	column IndicadorCredito
+		dataType: string
+		lineageTag: a54c4d20-6821-4a6d-af85-a92f3ac77752
+		summarizeBy: none
+		sourceColumn: IndicadorCredito
+
+		annotation SummarizationSetBy = Automatic
+
+	column NomeInstituicaoCredora
+		dataType: string
+		lineageTag: 417a0fd0-15c4-46c3-8806-55c61890c28b
+		summarizeBy: none
+		sourceColumn: NomeInstituicaoCredora
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClienteId
+		dataType: int64
+		formatString: 0
+		lineageTag: f505a1c0-e60b-4912-9e0c-58c4510b2fab
+		summarizeBy: count
+		sourceColumn: ClienteId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataCarga
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: c9e1693b-0ed4-439b-bc4f-1229e0634996
+		summarizeBy: none
+		sourceColumn: DataCarga
+
+		annotation SummarizationSetBy = Automatic
+
+	column _loaded_at
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: c80a5919-760a-4635-ac81-b2f5536f3b8a
+		summarizeBy: none
+		sourceColumn: _loaded_at
+
+		variation Variation
+			isDefault
+			relationship: 6b67e125-4428-4ed2-a741-f08488103858
+			defaultHierarchy: LocalDateTable_bd362921-fd59-4587-a746-4f9c89cd80e1.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column _batch_id
+		dataType: string
+		lineageTag: 67ef97bd-55b7-460e-a2b6-b132e45c0adf
+		summarizeBy: none
+		sourceColumn: _batch_id
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fCarteira = m
+		mode: import
+		queryGroup: '3. Fato'
+		source =
+				let
+				    // Conexão com o BigQuery
+				    Fonte = GoogleBigQuery.Database(),
+				
+				    // Seleciona o projeto
+				    Projeto = Fonte{[Name = gprojeto]}[Data],
+				
+				    // Seleciona o schema/dataset
+				    Schema = Projeto{[Name = gdatabase, Kind = "Schema"]}[Data],
+				
+				    // Obtém a tabela fato de carteira
+				    FactCarteira = Schema{[Name = "fact_carteira", Kind = "Table"]}[Data],
+				
+				    // Filtra por janela incremental de carga
+				    FiltraDataCarga =
+				        Table.SelectRows(
+				            FactCarteira,
+				            each [DataCarga] >= RangeStart and [DataCarga] < RangeEnd
+				        ),
+				
+				    // Filtra apenas registros do cliente informado
+				    FiltraCliente =
+				        Table.SelectRows(
+				            FiltraDataCarga,
+				            each [ClienteId] = IDCliente
+				        )
+				in
+				    FiltraCliente
+
+	annotation PBI_IsMQueryFoldable = True
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+

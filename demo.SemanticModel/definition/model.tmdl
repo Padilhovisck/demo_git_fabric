@@ -1,0 +1,102 @@
+model Model
+	culture: pt-BR
+	defaultPowerBIDataSourceVersion: powerBI_V3
+	discourageImplicitMeasures
+	sourceQueryCulture: pt-BR
+	dataAccessOptions
+		legacyRedirects
+		returnErrorValuesAsNull
+
+queryGroup '1. Parâmetros GoogleBigQuery'
+
+	annotation PBI_QueryGroupOrder = 1
+
+queryGroup '0. Parâmetros Generico'
+
+	annotation PBI_QueryGroupOrder = 0
+
+queryGroup '2. Dimensão'
+
+	annotation PBI_QueryGroupOrder = 2
+
+queryGroup '3. Fato'
+
+	annotation PBI_QueryGroupOrder = 3
+
+queryGroup '5. Parâmetros'
+
+	annotation PBI_QueryGroupOrder = 6
+
+queryGroup '4. Funções'
+
+	annotation PBI_QueryGroupOrder = 5
+
+annotation PBI_QueryOrder = ["fxCalendario","MetodoConexao","gprojeto","gdatabase","DataInicial","RangeStart","RangeEnd","IDCliente","Demo","tabTipoAgrupamento","dCalendario","dCalendarioEmissao","dEmitentes","dDestinatarios","dEventos","dNotas","fCarteira","fDocumentos","fEventos","base_notas","data_inicial","data_final"]
+
+annotation __PBI_TimeIntelligenceEnabled = 1
+
+annotation PBI_ProTooling = ["DaxQueryView_Desktop","CalcGroup","MCP-PBIModeling","DevMode"]
+
+ref table DateTableTemplate_05372311-b8a1-40b0-bdd6-2236a6f917ae
+ref table Medidas
+ref table 'VISAO POR DT CONSULTA'
+ref table 'Top 5 Emitentes'
+ref table 'Selecionar Mês (Notas Primeira Vez)'
+ref table 'Parâmetro Faixa de valores'
+ref table '_Faixas de Valores'
+ref table 'Parâmetro Faixa'
+ref table '_Faixas Unificadas'
+ref table '_Faixas de Qtde Notas'
+ref table tEmitente_Slicer
+ref table _dDataCarga
+ref table 'VISAO POR DT EMISSAO'
+ref table tEmitente_Slicer_Notas
+ref table dNotas
+ref table LocalDateTable_83a52df2-5089-4c3f-a11a-caaa21a192c8
+ref table LocalDateTable_07d46403-53c2-4ddf-9b0c-ac2025383a3a
+ref table LocalDateTable_053e01f1-20a6-444f-8bd0-1492fc347afe
+ref table LocalDateTable_1138d0fa-cec2-43c2-8d76-364bdcfc60c7
+ref table fEventos
+ref table LocalDateTable_ceccdd3c-d111-4f32-8c3b-b027f3e87400
+ref table LocalDateTable_62366c72-d347-480b-a126-eba06a71b67b
+ref table dCalendario
+ref table LocalDateTable_b5a146aa-c01f-44ad-9c5b-99959217ce37
+ref table LocalDateTable_d2699ca2-24db-4e73-b17e-7473a2a00fee
+ref table LocalDateTable_af3801ab-3b79-47d3-955e-6b02a1ef7d1b
+ref table LocalDateTable_1f7187b8-c293-4f96-9da4-c1d3ded7d356
+ref table LocalDateTable_46f9f4ed-8537-4c3d-a2b3-982098217053
+ref table LocalDateTable_b2434486-f002-49bb-8460-b94d69acabbc
+ref table LocalDateTable_274de1b2-57fe-409c-9290-e5dfab3f292e
+ref table LocalDateTable_b59b3654-775f-4adf-a9e3-e7a51efff02d
+ref table LocalDateTable_d8d0efa1-4381-49df-9dd2-cea14fcad61c
+ref table tabTipoAgrupamento
+ref table dEventos
+ref table fCarteira
+ref table LocalDateTable_1d0d2849-185b-4626-b968-340657d0458b
+ref table LocalDateTable_b5d56dc1-8b63-484e-ae9e-25c3478f6fcc
+ref table LocalDateTable_bd362921-fd59-4587-a746-4f9c89cd80e1
+ref table LocalDateTable_ba67ee22-25eb-4ab6-a731-fd1da894228a
+ref table dCalendarioEmissao
+ref table LocalDateTable_7f8564f7-7702-42c8-bb88-61a9ba773346
+ref table LocalDateTable_5ae54446-bbae-4975-bec2-e35925f46bef
+ref table LocalDateTable_855eccec-2a13-4288-a7bc-ba3df62df37e
+ref table LocalDateTable_9f555e1b-599f-42b6-a49f-d3068092b805
+ref table LocalDateTable_dd34d2e5-7637-4254-8652-66e2df19b5e6
+ref table LocalDateTable_d0fe9098-78d0-4ed5-8e3d-036f1fd689bf
+ref table LocalDateTable_22ee383b-1d90-4451-8ec2-cdad2698a04c
+ref table LocalDateTable_b450c9b1-685b-43cd-8896-f5bc7634b6b1
+ref table LocalDateTable_d38cc24b-963b-43ce-ace6-d79bc97de10c
+ref table fDocumentos
+ref table LocalDateTable_3ccaf750-566d-418b-8488-b6003b336ce2
+ref table LocalDateTable_9b142620-2aa4-401a-bc0b-ac166cab60a2
+ref table LocalDateTable_05c54644-c017-499e-9057-9f2438cf87ee
+ref table 'Filtro Ultrapassagem'
+ref table LocalDateTable_c6b92ca5-215f-41d5-bee4-b45c8fa6d772
+ref table LocalDateTable_7bc3eece-0459-4efe-9a68-eb8a20329db4
+ref table 'Parâmetro Eixo'
+ref table LocalDateTable_6994eb9a-ae88-48db-b5ea-204de8e08620
+
+ref perspective 'Análise de NFEs - Visão Limpa'
+
+ref cultureInfo pt-BR
+

@@ -1,0 +1,55 @@
+table 'Selecionar Mês (Notas Primeira Vez)'
+	isHidden
+	lineageTag: 3f3673db-302e-4967-8521-66d566550b19
+
+	/// [Parâmetro] Mês selecionado para filtrar notas de primeira consulta. Controle temporal.
+	measure 'Valor Selecionar Mês' = SELECTEDVALUE('Selecionar Mês (Notas Primeira Vez)'[Selecionar Mês])
+		formatString: 0
+		isHidden
+		displayFolder: Parâmetros
+		lineageTag: 4aae79da-4163-4971-9e9e-e1a2c442f888
+
+	column 'Selecionar Mês'
+		isHidden
+		formatString: 0
+		lineageTag: 41776547-2c15-46d2-b4ae-69b368e1c46f
+		summarizeBy: none
+		sourceColumn: [Value]
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 0
+				}
+
+		annotation SummarizationSetBy = User
+
+	column 'Nome do Mês' =
+			
+			SWITCH(
+			    'Selecionar Mês (Notas Primeira Vez)'[Selecionar Mês],
+			    1, "Janeiro",
+			    2, "Fevereiro",
+			    3, "Março",
+			    4, "Abril",
+			    5, "Maio",
+			    6, "Junho",
+			    7, "Julho",
+			    8, "Agosto",
+			    9, "Setembro",
+			    10, "Outubro",
+			    11, "Novembro",
+			    12, "Dezembro"
+			)
+		isHidden
+		lineageTag: 7f82395e-067a-403a-b4e1-4ecb17d539f4
+		summarizeBy: none
+		sortByColumn: 'Selecionar Mês'
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Selecionar Mês (Notas Primeira Vez)' = calculated
+		mode: import
+		source = GENERATESERIES(1, 12, 1)
+
+	annotation PBI_Id = 9d0380a5887149edbf47734ad46bdd41
+

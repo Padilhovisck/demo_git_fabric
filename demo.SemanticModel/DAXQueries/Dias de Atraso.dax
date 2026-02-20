@@ -1,0 +1,46 @@
+EVALUATE
+
+VAR EventosMaisRecentes =
+    ADDCOLUMNS(
+        SUMMARIZE(
+            feventos,
+            feventos[chaveNotaFiscal],
+            feventos[dataEvento]
+        ),
+        "UltimaDataEvento", MAX(feventos[dataEvento])
+    )
+VAR EventosComPrioridade =
+    ADDCOLUMNS(
+        FILTER(
+            feventos,
+            feventos[dataEvento] IN DISTINCT(SELECTCOLUMNS(EventosMaisRecentes, "Data", [UltimaDataEvento]))
+        ),
+        "Prioridade", LOOKUPVALUE(
+            deventoscriticidade[Prioridade],
+            deventoscriticidade[CODIGO], feventos[codigoEvento]
+        ),
+        "Criticidade", LOOKUPVALUE(
+            deventoscriticidade[Criticidade],
+            deventoscriticidade[CODIGO], feventos[codigoEvento]
+        )
+    )
+VAR EventoCriticoComMaiorPrioridade =
+    ADDCOLUMNS(
+        SUMMARIZE(
+            EventosComPrioridade,
+            feventos[chaveNotaFiscal],
+            feventos[codigoEvento],
+            "MaiorPrioridade", MAXX(EventosComPrioridade, [Prioridade])
+        ),
+        "Criticidade", LOOKUPVALUE(
+            deventoscriticidade[Criticidade],
+            deventoscriticidade[CODIGO], feventos[codigoEvento]
+        )
+    )
+VAR Criticos =
+    FILTER(
+        EventoCriticoComMaiorPrioridade,
+        [Criticidade] = "CRÍTICO"
+    )
+RETURN Criticos
+

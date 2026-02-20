@@ -1,0 +1,63 @@
+table '_Faixas de Qtde Notas'
+	isHidden
+	lineageTag: 953f63cb-bbeb-47cc-9ba7-86b805ee30e6
+
+	column Faixa
+		isHidden
+		lineageTag: c5dcf16f-0e8a-4fff-ab35-ca81536922eb
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Faixa]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Min
+		isHidden
+		formatString: 0
+		lineageTag: 9e423a4b-c0b1-4180-bb25-1252e6c164be
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Min]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Max
+		isHidden
+		formatString: 0
+		lineageTag: 6978d09e-7cec-4a5b-bc65-e7a91a4ea37c
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Max]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordem
+		isHidden
+		formatString: 0
+		lineageTag: 2b2d5f27-6f9f-4ba8-a4ee-5a750274a6ad
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Ordem]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition '_Faixas de Qtde Notas' = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Faixa", STRING,
+				    "Min", INTEGER,
+				    "Max", INTEGER,
+				    "Ordem", INTEGER,
+				    {
+				        { "V1", 0, 50, 1 },
+				        { "V2", 50, 300, 2 },
+				        { "V3", 300, 500, 3 },
+				        { "V4", 500, 1000, 4 },
+				        { "V5", 1000, 99999, 5 }
+				    }
+				)
+
+	annotation PBI_Id = f7f49e504ba140459ecfab9b7c80a726
+

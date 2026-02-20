@@ -1,0 +1,4 @@
+#configurações locais do Power BI
+**/.pbi/localSettings.json 
+#contém cache do Power BI (dados de cache do Power BI)
+**/.pbi/cache.abf

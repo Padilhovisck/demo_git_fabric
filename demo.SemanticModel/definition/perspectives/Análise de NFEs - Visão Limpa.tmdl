@@ -1,0 +1,5 @@
+/// Perspectiva com nomenclatura padronizada e limpa para análise de notas fiscais eletrônicas
+perspective 'Análise de NFEs - Visão Limpa'
+
+	perspectiveTable Medidas
+

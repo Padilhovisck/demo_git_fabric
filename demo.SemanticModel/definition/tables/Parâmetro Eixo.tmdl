@@ -1,0 +1,50 @@
+table 'Parâmetro Eixo'
+	isHidden
+	lineageTag: 21df0d35-083b-478e-9be5-f26b3956e8f1
+
+	column 'Parâmetro Eixo'
+		isHidden
+		lineageTag: b0011ed1-8045-431f-9592-5a9b062dddbd
+		summarizeBy: none
+		sourceColumn: [Value1]
+		sortByColumn: 'Parâmetro Eixo Pedido'
+
+		relatedColumnDetails
+			groupByColumn: 'Parâmetro Eixo Campos'
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parâmetro Eixo Campos'
+		isHidden
+		lineageTag: ccd8f3fc-a4b6-40da-b138-b9521d13b743
+		summarizeBy: none
+		sourceColumn: [Value2]
+		sortByColumn: 'Parâmetro Eixo Pedido'
+
+		extendedProperty ParameterMetadata =
+				{
+				  "version": 3,
+				  "kind": 2
+				}
+
+		annotation SummarizationSetBy = Automatic
+
+	column 'Parâmetro Eixo Pedido'
+		isHidden
+		formatString: 0
+		lineageTag: a1447478-04f1-4c4d-bcca-d2550f60ff22
+		summarizeBy: sum
+		sourceColumn: [Value3]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition 'Parâmetro Eixo' = calculated
+		mode: import
+		source =
+				{
+				    ("Estado", NAMEOF('dNotas'[UfDestinatario]), 0),
+				    ("Transp.", NAMEOF('dNotas'[NomeTransportador]), 1)
+				}
+
+	annotation PBI_Id = 6563d3fe0c9c4723bb77bf1104b47ba8
+

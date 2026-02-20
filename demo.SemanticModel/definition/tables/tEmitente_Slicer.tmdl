@@ -1,0 +1,28 @@
+table tEmitente_Slicer
+	isHidden
+	lineageTag: 0ed1b28d-ce91-4927-8958-0e30f2d57fd6
+
+	column Emitente
+		isHidden
+		lineageTag: b8e28dcd-06a5-48b3-988f-2ca720aa77e5
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Emitente]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition tEmitente_Slicer = calculated
+		mode: import
+		source = ```
+				
+				DISTINCT(
+				    SELECTCOLUMNS(
+				        NATURALINNERJOIN(fCarteira, dNotas),
+				        "Emitente", [NomeCedente]
+				    )
+				)
+				
+				```
+
+	annotation PBI_Id = ef9e4e4e4252480982a79e77d9cdd279
+

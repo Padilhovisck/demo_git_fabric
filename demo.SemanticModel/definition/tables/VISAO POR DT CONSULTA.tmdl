@@ -1,0 +1,45 @@
+table 'VISAO POR DT CONSULTA'
+	isHidden
+	lineageTag: 67e56754-fd8d-4c96-9ada-669a1ff7e7a8
+
+	calculationGroup
+		precedence: 1
+
+		calculationItem YTD =
+				
+				CALCULATE(
+				    SELECTEDMEASURE(),
+				    DATESYTD(dCalendario[Data]),
+				    ALLEXCEPT(dCalendario, dCalendario[Ano])  // Mantém só o filtro de ANO
+				)
+
+		calculationItem QTD =
+				
+				CALCULATE(
+				    SELECTEDMEASURE(),
+				    DATESQTD(dCalendario[Data]),
+				    ALLEXCEPT(dCalendario, dCalendario[Ano], dCalendario[TrimestreAno])  // Mantém ANO e TRIMESTRE
+				)
+
+		calculationItem 'Mês Atual' = SELECTEDMEASURE()
+
+	column Itens
+		dataType: string
+		isHidden
+		lineageTag: a6764d60-461f-4335-a2dc-0b2ab25befa7
+		summarizeBy: none
+		sourceColumn: Name
+		sortByColumn: Ordinal
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordinal
+		dataType: int64
+		isHidden
+		formatString: 0
+		lineageTag: f6898cb0-22b8-4a8f-906f-54a4ad598262
+		summarizeBy: sum
+		sourceColumn: Ordinal
+
+		annotation SummarizationSetBy = Automatic
+

@@ -1,0 +1,63 @@
+table '_Faixas de Valores'
+	isHidden
+	lineageTag: 7f35cf8a-f656-4b5d-807e-9d0f453180a6
+
+	column Faixa
+		isHidden
+		lineageTag: 57b8123c-dc83-45ea-8670-9e6befde3a90
+		summarizeBy: none
+		isNameInferred
+		sourceColumn: [Faixa]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Min
+		isHidden
+		formatString: 0
+		lineageTag: 9bffde74-8ae9-47b0-8ae4-6c87a564586f
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Min]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Max
+		isHidden
+		formatString: 0
+		lineageTag: 64abe801-13a9-424b-989a-e6100e74b84a
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Max]
+
+		annotation SummarizationSetBy = Automatic
+
+	column Ordem
+		isHidden
+		formatString: 0
+		lineageTag: c37e0eb3-698c-49f3-a7ea-0584e6362240
+		summarizeBy: sum
+		isNameInferred
+		sourceColumn: [Ordem]
+
+		annotation SummarizationSetBy = Automatic
+
+	partition '_Faixas de Valores' = calculated
+		mode: import
+		source =
+				
+				DATATABLE(
+				    "Faixa", STRING,
+				    "Min", INTEGER,
+				    "Max", INTEGER,
+				    "Ordem", INTEGER,
+				    {
+				        { "V1", 0, 150000, 1 },
+				        { "V2", 150000, 400000, 2 },
+				        { "V3", 400000, 900000, 3 },
+				        { "V4", 900000, 3000000, 4 },
+				        { "V5", 3000000, 9999999, 5 }
+				    }
+				)
+
+	annotation PBI_Id = ee30c2cf162c4420aa3b5af4d587a4ca
+

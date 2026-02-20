@@ -1,0 +1,205 @@
+table fEventos
+	lineageTag: d4cbf5da-8f4b-4dc9-893a-3959c504721a
+
+	refreshPolicy
+		policyType: basic
+		rollingWindowGranularity: year
+		rollingWindowPeriods: 2
+		incrementalGranularity: day
+		incrementalPeriods: 1
+		pollingExpression = let MaxDataCarga = List.Max(fEventos[DataCarga]), accountForNull = if MaxDataCarga = null then #datetime(1901, 01, 01, 00, 00, 00) else MaxDataCarga in accountForNull
+		sourceExpression =
+			let
+			    // Conexão com o BigQuery
+			    Fonte = GoogleBigQuery.Database(),
+			
+			    // Seleciona o projeto
+			    Projeto = Fonte{[Name = gprojeto]}[Data],
+			
+			    // Seleciona o schema/dataset
+			    Schema = Projeto{[Name = gdatabase, Kind = "Schema"]}[Data],
+			
+			    // Obtém a tabela fato de eventos
+			    FactEventos = Schema{[Name = "fact_eventos", Kind = "Table"]}[Data],
+			
+			    // Filtra por janela incremental de carga
+			    FiltraDataCarga =
+			        Table.SelectRows(
+			            FactEventos,
+			            each [DataCarga] >= RangeStart and [DataCarga] < RangeEnd
+			        ),
+			
+			    // Filtra apenas registros do cliente informado
+			    FiltraCliente =
+			        Table.SelectRows(
+			            FiltraDataCarga,
+			            each [ClienteId] = IDCliente
+			        )
+			in
+			    FiltraCliente
+
+	column ChaveNotaFiscal
+		dataType: string
+		lineageTag: a9928d5e-e928-4b7a-93fd-0f9ba8b69496
+		summarizeBy: none
+		sourceColumn: ChaveNotaFiscal
+
+		annotation SummarizationSetBy = Automatic
+
+	column CodigoAssinaturaTipoEvento
+		dataType: string
+		lineageTag: 52274411-9a9f-44cf-9a3a-b94f23002671
+		summarizeBy: none
+		sourceColumn: CodigoAssinaturaTipoEvento
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataOcorrencia
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 5b133798-6258-4f19-8568-b4efe7d2cb0f
+		summarizeBy: none
+		sourceColumn: DataOcorrencia
+
+		variation Variation
+			isDefault
+			relationship: 59f60d4b-eec6-4e0d-a242-039551bf6724
+			defaultHierarchy: LocalDateTable_ceccdd3c-d111-4f32-8c3b-b027f3e87400.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column TipoEvento
+		dataType: string
+		lineageTag: 781f911c-79f8-4483-a22f-6ded1a2bf7c4
+		summarizeBy: none
+		sourceColumn: TipoEvento
+
+		annotation SummarizationSetBy = Automatic
+
+	column SituacaoEventoNivelReferencia
+		dataType: string
+		lineageTag: 9a98ee22-2125-4a8c-80d9-2ba22b7bd78b
+		summarizeBy: none
+		sourceColumn: SituacaoEventoNivelReferencia
+
+		annotation SummarizationSetBy = Automatic
+
+	column CriticidadeEvento
+		dataType: string
+		lineageTag: b3b29ab0-82f8-427f-99b0-a08f28dda6eb
+		summarizeBy: none
+		sourceColumn: CriticidadeEvento
+
+		annotation SummarizationSetBy = Automatic
+
+	column Prioridade
+		dataType: string
+		lineageTag: 0b7e1261-cc95-41ef-bedc-558e09314dec
+		summarizeBy: none
+		sourceColumn: Prioridade
+
+		annotation SummarizationSetBy = Automatic
+
+	column SituacaoEventoNivel
+		dataType: string
+		lineageTag: af291e3f-1af3-489a-bc34-5c8877ce1e42
+		summarizeBy: none
+		sourceColumn: SituacaoEventoNivel
+
+		annotation SummarizationSetBy = Automatic
+
+	column ClienteId
+		dataType: int64
+		formatString: 0
+		lineageTag: b872cba1-a4bc-4046-8af3-62826d70103f
+		summarizeBy: count
+		sourceColumn: ClienteId
+
+		annotation SummarizationSetBy = Automatic
+
+	column DataCarga
+		dataType: dateTime
+		formatString: General Date
+		lineageTag: 395bdfb2-7253-41f8-a633-7e8f75835ec0
+		summarizeBy: none
+		sourceColumn: DataCarga
+
+		variation Variation
+			isDefault
+			relationship: f077ecc0-e5a0-42d2-83db-a57d3e18830c
+			defaultHierarchy: LocalDateTable_62366c72-d347-480b-a126-eba06a71b67b.'Hierarquia de datas'
+
+		annotation SummarizationSetBy = Automatic
+
+	column codigo_prepoderancia
+		dataType: int64
+		formatString: 0
+		lineageTag: 31a2e686-c713-4dfd-ae13-4fc40109fd57
+		summarizeBy: sum
+		sourceColumn: codigo_prepoderancia
+
+		annotation SummarizationSetBy = Automatic
+
+	column evento_pos_neg
+		dataType: string
+		lineageTag: cf93a8a3-d9e4-48c7-88d3-c5de45a007f9
+		summarizeBy: none
+		sourceColumn: evento_pos_neg
+
+		annotation SummarizationSetBy = Automatic
+
+	column evento_pend_encerrado
+		dataType: string
+		lineageTag: b6304c38-1f68-4503-94c7-b53f862094a4
+		summarizeBy: none
+		sourceColumn: evento_pend_encerrado
+
+		annotation SummarizationSetBy = Automatic
+
+	column evento_pendentes
+		dataType: string
+		lineageTag: acb87b37-a6c9-4515-b601-c2518f315e3a
+		summarizeBy: none
+		sourceColumn: evento_pendentes
+
+		annotation SummarizationSetBy = Automatic
+
+	partition fEventos = m
+		mode: import
+		queryGroup: '3. Fato'
+		source =
+				let
+				    // Conexão com o BigQuery
+				    Fonte = GoogleBigQuery.Database(),
+				
+				    // Seleciona o projeto
+				    Projeto = Fonte{[Name = gprojeto]}[Data],
+				
+				    // Seleciona o schema/dataset
+				    Schema = Projeto{[Name = gdatabase, Kind = "Schema"]}[Data],
+				
+				    // Obtém a tabela fato de eventos
+				    FactEventos = Schema{[Name = "fact_eventos", Kind = "Table"]}[Data],
+				
+				    // Filtra por janela incremental de carga
+				    FiltraDataCarga =
+				        Table.SelectRows(
+				            FactEventos,
+				            each [DataCarga] >= RangeStart and [DataCarga] < RangeEnd
+				        ),
+				
+				    // Filtra apenas registros do cliente informado
+				    FiltraCliente =
+				        Table.SelectRows(
+				            FiltraDataCarga,
+				            each [ClienteId] = IDCliente
+				        )
+				in
+				    FiltraCliente
+
+	annotation PBI_IsMQueryFoldable = True
+
+	annotation PBI_NavigationStepName = Navegação
+
+	annotation PBI_ResultType = Table
+
