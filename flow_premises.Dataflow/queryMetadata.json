@@ -1,0 +1,68 @@
+{
+  "formatVersion": "202502",
+  "computeEngineSettings": {},
+  "name": "Dataflow 1",
+  "queryGroups": [],
+  "documentLocale": "pt-BR",
+  "queriesMetadata": {
+    "gprojeto": {
+      "queryId": "b5f48926-1241-4495-91bf-a481f392fc01",
+      "queryName": "gprojeto",
+      "loadEnabled": false
+    },
+    "gdatabase": {
+      "queryId": "d143625f-602d-49cf-a7f3-469315b8be3d",
+      "queryName": "gdatabase",
+      "loadEnabled": false
+    },
+    "RangeStart": {
+      "queryId": "1b0cfcb7-a6a9-47a9-84c2-0a5b4cc3015f",
+      "queryName": "RangeStart",
+      "loadEnabled": false
+    },
+    "RangeEnd": {
+      "queryId": "1b82be48-9178-41b8-af23-ecc6e227bf08",
+      "queryName": "RangeEnd",
+      "loadEnabled": false
+    },
+    "IDCliente": {
+      "queryId": "4eefdd6b-5b6c-4dea-8414-afc5ad134122",
+      "queryName": "IDCliente",
+      "loadEnabled": false
+    },
+    "dNotas": {
+      "queryId": "516c9b05-c027-464c-83bd-b4e92c5dc434",
+      "queryName": "dNotas",
+      "loadEnabled": false
+    },
+    "fDocumentos": {
+      "queryId": "601f83bc-44c9-4287-9114-d395bafaaf61",
+      "queryName": "fDocumentos",
+      "loadEnabled": false
+    },
+    "dNotas_DataDestination": {
+      "queryId": "9dca54bd-f251-42c3-9083-8102dc4e5ead",
+      "queryName": "dNotas_DataDestination",
+      "isHidden": true,
+      "loadEnabled": false
+    },
+    "fDocumentos_DataDestination": {
+      "queryId": "515940a2-e07f-48c7-95c0-f223cf95e899",
+      "queryName": "fDocumentos_DataDestination",
+      "isHidden": true,
+      "loadEnabled": false
+    }
+  },
+  "connections": [
+    {
+      "path": "GoogleBigQuery",
+      "kind": "GoogleBigQuery",
+      "connectionId": "{\"ClusterId\":\"1443b118-712f-4c63-a51a-8b961eb1bc9b\",\"DatasourceId\":\"66c860af-daf8-416d-9a13-b25ca3cce816\"}"
+    },
+    {
+      "path": "Lakehouse",
+      "kind": "Lakehouse",
+      "connectionId": "{\"ClusterId\":\"1443b118-712f-4c63-a51a-8b961eb1bc9b\",\"DatasourceId\":\"7603bd36-7058-4f74-923d-ae41f593846c\"}"
+    }
+  ]
+}
