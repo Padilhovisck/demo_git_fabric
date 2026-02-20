@@ -1291,16 +1291,6 @@ cultureInfo pt-BR
 			            },
 			            "Weight": 0.9
 			          }
-			        },
-			        {
-			          "Média Notas (semevt):": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -1316,16 +1306,6 @@ cultureInfo pt-BR
 			        {
 			          "qtd notas último evento SEMEVT dinâmica": {
 			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "qtd notas (semevt):": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -1375,16 +1355,6 @@ cultureInfo pt-BR
 			            },
 			            "Weight": 0.9
 			          }
-			        },
-			        {
-			          "Média Eventos:": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
 			        }
 			      ]
 			    },
@@ -1400,16 +1370,6 @@ cultureInfo pt-BR
 			        {
 			          "qtd eventos por chave carteira dinâmica": {
 			            "State": "Generated"
-			          }
-			        },
-			        {
-			          "qtd eventos:": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
 			          }
 			        }
 			      ]
@@ -1446,26 +1406,6 @@ cultureInfo pt-BR
 			        },
 			        {
 			          "qtd NFEs:": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "qtd eventos (semevt):": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "qtd nfe x evento:": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
@@ -1924,16 +1864,6 @@ cultureInfo pt-BR
 			        },
 			        {
 			          "NOTAS SEM RISCO": {
-			            "State": "Suggested",
-			            "Source": {
-			              "Type": "External",
-			              "Agent": "PowerBI.VisualColumnRename"
-			            },
-			            "Weight": 0.9
-			          }
-			        },
-			        {
-			          "% Criticidade Sem Risco:": {
 			            "State": "Suggested",
 			            "Source": {
 			              "Type": "External",
