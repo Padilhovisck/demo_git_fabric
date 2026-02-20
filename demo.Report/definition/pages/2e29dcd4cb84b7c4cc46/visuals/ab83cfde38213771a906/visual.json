@@ -1169,13 +1169,6 @@
                 }
               }
             },
-            "showActionsInTooltips": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            },
             "themedTitleFontColor": {
               "solid": {
                 "color": {

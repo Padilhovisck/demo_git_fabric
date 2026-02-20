@@ -1446,13 +1446,6 @@
                 }
               }
             },
-            "showActionsInTooltips": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            },
             "themedValueFontColor": {
               "solid": {
                 "color": {

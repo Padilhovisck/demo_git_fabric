@@ -1494,13 +1494,6 @@
                 }
               }
             },
-            "showActionsInTooltips": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            },
             "fontFamily": {
               "expr": {
                 "Literal": {

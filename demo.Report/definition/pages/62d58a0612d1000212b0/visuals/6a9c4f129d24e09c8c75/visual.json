@@ -1013,13 +1013,6 @@
                 }
               }
             },
-            "showActionsInTooltips": {
-              "expr": {
-                "Literal": {
-                  "Value": "false"
-                }
-              }
-            },
             "themedBackground": {
               "solid": {
                 "color": {
